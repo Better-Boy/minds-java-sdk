@@ -1,6 +1,5 @@
-# minds-java-sdk
+package mindsdb;
 
-```java
 import mindsdb.models.Mind;
 import mindsdb.services.Minds;
 
@@ -15,4 +14,3 @@ public class Main {
         System.out.println(mindList);
     }
 }
-```

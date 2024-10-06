@@ -13,6 +13,7 @@ public class Constants {
     public static final String EMAIL = "email";
     public static final String QUERY = "query";
     public static final String PROJECT_NAME_ROUTE_PARAM = "projectName";
+    public static final String DATASOURCE_NAME_ROUTE_PARAM = "datasourceName";
     public static final String DATABASE_NAME_ROUTE_PARAM = "databaseName";
     public static final String MODEL_NAME_ROUTE_PARAM = "modelName";
     public static final String MIND_NAME_ROUTE_PARAM = "mindName";
@@ -21,8 +22,8 @@ public class Constants {
     public static final Gson gson = new Gson();
     public static final String SERVER_STATUS_ENDPOINT = "/api/status";
     public static final String SQL_QUERY_ENDPOINT = "/api/sql/query";
-    public static final String LIST_PROJECT_ENDPOINT = "/api/projects";
-    public static final String GET_PROJECT_ENDPOINT = "/api/projects/{" + PROJECT_NAME_ROUTE_PARAM + "}";
+    public static final String LIST_DATASOURCE_ENDPOINT = "/datasources";
+    public static final String GET_DATASOURCE_ENDPOINT = LIST_DATASOURCE_ENDPOINT + "/{" + DATASOURCE_NAME_ROUTE_PARAM + "}";
     public static final String LIST_DATABASE_ENDPOINT = "/api/databases";
     public static final String GET_DATABASE_ENDPOINT = "/api/databases/{" + DATABASE_NAME_ROUTE_PARAM + "}";
     public static final String LIST_MODEL_ENDPOINT = "/api/projects/{" + PROJECT_NAME_ROUTE_PARAM + "}/models" ;

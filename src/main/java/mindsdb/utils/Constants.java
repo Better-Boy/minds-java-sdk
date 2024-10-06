@@ -24,6 +24,7 @@ public class Constants {
     public static final String SQL_QUERY_ENDPOINT = "/api/sql/query";
     public static final String LIST_DATASOURCE_ENDPOINT = "/datasources";
     public static final String GET_DATASOURCE_ENDPOINT = LIST_DATASOURCE_ENDPOINT + "/{" + DATASOURCE_NAME_ROUTE_PARAM + "}";
+    public static final String DELETE_DATASOURCE_ENDPOINT = LIST_DATASOURCE_ENDPOINT + "/{" + DATASOURCE_NAME_ROUTE_PARAM + "}";
     public static final String LIST_DATABASE_ENDPOINT = "/api/databases";
     public static final String GET_DATABASE_ENDPOINT = "/api/databases/{" + DATABASE_NAME_ROUTE_PARAM + "}";
     public static final String LIST_MODEL_ENDPOINT = "/api/projects/{" + PROJECT_NAME_ROUTE_PARAM + "}/models" ;

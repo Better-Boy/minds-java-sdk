@@ -41,4 +41,17 @@ public class Datasources {
                 });
         return datasourceAtomicRef.get();
     }
+
+    // TODO: use logging, test it
+    public static void delete(String datasourceName) {
+        Unirest.get(Constants.DELETE_DATASOURCE_ENDPOINT)
+                .routeParam(Constants.DATASOURCE_NAME_ROUTE_PARAM, datasourceName)
+                .asString()
+                .ifFailure(datasourceHttpResponse -> {
+                    throw new RuntimeException("Datasource delete failed. Response code - " + datasourceHttpResponse.getStatus());
+                })
+                .ifSuccess(datasourceHttpResponse -> {
+                    System.out.println("Datasource deleted");
+                });
+    }
 }

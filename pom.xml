@@ -38,6 +38,11 @@
             <artifactId>unirest-modules-gson</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>io.github.stefanbratanov</groupId>
+            <artifactId>jvm-openai</artifactId>
+            <version>0.11.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

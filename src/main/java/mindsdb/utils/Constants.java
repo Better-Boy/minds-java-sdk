@@ -31,6 +31,6 @@ public class Constants {
     public static final String GET_MODEL_ENDPOINT = "/api/projects/{" + PROJECT_NAME_ROUTE_PARAM + "}/models/{" + MODEL_NAME_ROUTE_PARAM + "}" ;
     public static final String LIST_TABLE_ENDPOINT = "/api/databases/{" + DATABASE_NAME_ROUTE_PARAM + "}/tables";
     public static final String LIST_MIND_ENDPOINT = "/projects/{" + PROJECT_NAME_ROUTE_PARAM + "}/minds";
-
     public static final String GET_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/{" + MIND_NAME_ROUTE_PARAM + "}";
+    public static final String DELETE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/{" + MIND_NAME_ROUTE_PARAM + "}";
 }

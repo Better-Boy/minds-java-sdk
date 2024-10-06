@@ -42,4 +42,18 @@ public class Minds {
                 });
         return mindAtomicRef.get();
     }
+
+    // TODO: use logging, test it
+    public static void delete(String mindName) {
+        Unirest.get(Constants.DELETE_MIND_ENDPOINT)
+                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
+                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, mindName)
+                .asString()
+                .ifFailure(httpResponse -> {
+                    throw new RuntimeException("Mind delete failed. Response code - " + httpResponse.getStatus());
+                })
+                .ifSuccess(httpResponse -> {
+                    System.out.println("Mind deleted");
+                });
+    }
 }

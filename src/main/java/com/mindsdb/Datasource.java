@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Getter
 @Setter
 @Builder
+@EqualsAndHashCode
 public class Datasource {
 
     private static final Logger logger = LoggerFactory.getLogger(Datasource.class);

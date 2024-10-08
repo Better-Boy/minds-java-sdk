@@ -20,7 +20,8 @@ public class Main {
 //        boolean isDeleted = Minds.delete("newtestt");
 //        Datasource datasource = Datasource.
 //        Mind mind = Mind.builder().datasources(Collections.emptyList()).name("sfd").build();
-        Mind mind = new Mind("hi", Collections.emptyList());
+//        Mind mind = new Mind("hi", Collections.emptyList());
+
 //        Datasources.delete("testds");
 //        Datasources.delete("testds1");
 //        List<Datasource> datasources = Datasources.list();

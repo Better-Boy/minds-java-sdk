@@ -3,7 +3,6 @@ package com.mindsdb;
 import com.google.gson.JsonObject;
 import kong.unirest.core.GenericType;
 import kong.unirest.core.Unirest;
-import kong.unirest.core.Util;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +71,29 @@ public class Mind {
 
     public boolean delete() throws Exception {
         return delete(name);
+    }
+
+    public boolean addDatasource(String mindName, String datasourceName, boolean checkConnection) throws Exception {
+        Utils.validateMindName(mindName);
+        Utils.validateDatasourceName(datasourceName);
+        AtomicBoolean isDatasourceAdded = new AtomicBoolean(false);
+        String postBody = Utils.createRequestBodyForAddDs(datasourceName, checkConnection);
+        Unirest.post(Constants.ADD_DATASOURCE_MIND_ENDPOINT)
+                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
+                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, mindName)
+                .routeParam(Constants.DATASOURCE_NAME_ROUTE_PARAM, datasourceName)
+                .body(postBody)
+                .asString()
+                .ifFailure(stringHttpResponse -> {
+                    if(!stringHttpResponse.isSuccess()){
+                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
+                    }
+                })
+                .ifSuccess(stringHttpResponse -> {
+                    logger.debug("Response code - {}, {} updated", stringHttpResponse.getStatus(), name);
+                    isDatasourceAdded.set(true);
+                });
+        return isDatasourceAdded.get();
     }
 
     public static boolean create(String mindName, List<String> datasources) throws Exception {

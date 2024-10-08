@@ -8,6 +8,8 @@ public class Constants {
     public static final String MINDS_API_ENDPOINT = "/api";
     public static final String MINDS_CLOUD_ENDPOINT = "https://mdb.ai" + MINDS_API_ENDPOINT;
     public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String CONTEXT_TYPE_HEADER = "Content-Type";
+    public static final String APPLICATION_JSON = "application/json";
     public static final String MINDS_PROJECT = "mindsdb";
     public static final String USERNAME = "username";
     public static final String EMAIL = "email";

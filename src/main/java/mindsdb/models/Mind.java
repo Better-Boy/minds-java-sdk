@@ -1,7 +1,6 @@
 package mindsdb.models;
 
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 import java.util.List;

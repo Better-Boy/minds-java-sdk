@@ -23,7 +23,7 @@ public class MindsDb {
         if(!baseUrl.endsWith(Constants.MINDS_API_ENDPOINT)) baseUrl+=Constants.MINDS_API_ENDPOINT;
         Unirest.config()
                 .enableCookieManagement(true)
-                .defaultBaseUrl(Constants.MINDS_CLOUD_ENDPOINT)
+                .defaultBaseUrl(baseUrl)
                 .addDefaultHeader(Constants.AUTHORIZATION_HEADER,"Bearer " + apiKey)
                 .cacheResponses(new Cache.Builder().maxAge(1, TimeUnit.MINUTES))
                 .retryAfter(true, 2);

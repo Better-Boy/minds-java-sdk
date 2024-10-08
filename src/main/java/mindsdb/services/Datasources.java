@@ -3,10 +3,10 @@ package mindsdb.services;
 import kong.unirest.core.GenericType;
 import kong.unirest.core.Unirest;
 import mindsdb.models.Datasource;
-import mindsdb.models.Mind;
 import mindsdb.utils.Constants;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Datasources {
@@ -26,8 +26,8 @@ public class Datasources {
         return listAtomicRef.get();
     }
 
-    public static Datasource get(String datasourceName) {
-        AtomicReference<Datasource> datasourceAtomicRef = new AtomicReference<>();
+    public static Optional<Datasource> get(String datasourceName) {
+        AtomicReference<Optional<Datasource>> optionalDatasource = new AtomicReference<>(Optional.empty());
         Unirest.get(Constants.GET_DATASOURCE_ENDPOINT)
                 .routeParam(Constants.DATASOURCE_NAME_ROUTE_PARAM, datasourceName)
                 .asObject(Datasource.class)
@@ -37,14 +37,14 @@ public class Datasources {
                     }
                 })
                 .ifSuccess(datasourceHttpResponse -> {
-                    datasourceAtomicRef.set(datasourceHttpResponse.getBody());
+                    System.out.println("success");
+                    optionalDatasource.set(Optional.of(datasourceHttpResponse.getBody()));
                 });
-        return datasourceAtomicRef.get();
+        return optionalDatasource.get();
     }
 
-    // TODO: use logging, test it
     public static void delete(String datasourceName) {
-        Unirest.get(Constants.DELETE_DATASOURCE_ENDPOINT)
+        Unirest.delete(Constants.DELETE_DATASOURCE_ENDPOINT)
                 .routeParam(Constants.DATASOURCE_NAME_ROUTE_PARAM, datasourceName)
                 .asString()
                 .ifFailure(datasourceHttpResponse -> {

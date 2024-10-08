@@ -6,7 +6,6 @@ import mindsdb.utils.Constants;
 import java.util.concurrent.TimeUnit;
 
 public class MindsDb {
-
     private MindsDb() { }
 
     public static synchronized void init(String apiKey) {
@@ -14,6 +13,7 @@ public class MindsDb {
                 .enableCookieManagement(true)
                 .defaultBaseUrl(Constants.MINDS_CLOUD_ENDPOINT)
                 .addDefaultHeader(Constants.AUTHORIZATION_HEADER,"Bearer " + apiKey)
+                .addDefaultHeader(Constants.CONTEXT_TYPE_HEADER, Constants.APPLICATION_JSON)
                 .cacheResponses(new Cache.Builder().maxAge(1, TimeUnit.MINUTES))
                 .retryAfter(true, 2);
     }
@@ -25,6 +25,7 @@ public class MindsDb {
                 .enableCookieManagement(true)
                 .defaultBaseUrl(baseUrl)
                 .addDefaultHeader(Constants.AUTHORIZATION_HEADER,"Bearer " + apiKey)
+                .addDefaultHeader(Constants.CONTEXT_TYPE_HEADER, Constants.APPLICATION_JSON)
                 .cacheResponses(new Cache.Builder().maxAge(1, TimeUnit.MINUTES))
                 .retryAfter(true, 2);
     }

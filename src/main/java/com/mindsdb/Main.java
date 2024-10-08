@@ -1,10 +1,13 @@
-package mindsdb;
+package com.mindsdb;
 
-import mindsdb.models.Mind;
+import com.mindsdb.Mind;
+
+import java.util.Collection;
+import java.util.Collections;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String apiKey = "";
         String baseUrl = "https://staging.mdb.ai";
         MindsDb.init(apiKey, baseUrl);
@@ -16,7 +19,8 @@ public class Main {
 //        System.out.println(datasource.isEmpty());
 //        boolean isDeleted = Minds.delete("newtestt");
 //        Datasource datasource = Datasource.
-        Mind mind = new Mind();
+//        Mind mind = Mind.builder().datasources(Collections.emptyList()).name("sfd").build();
+        Mind mind = new Mind("hi", Collections.emptyList());
 //        Datasources.delete("testds");
 //        Datasources.delete("testds1");
 //        List<Datasource> datasources = Datasources.list();

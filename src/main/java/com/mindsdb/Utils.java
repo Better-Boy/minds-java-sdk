@@ -31,4 +31,22 @@ public class Utils {
         if(datasources == null) throw new Exception("datasources list cannot be null");
         if(datasources.isEmpty()) throw new Exception("datasources cannot be empty list. A mind needs atleast one datasource");
     }
+
+    public static void validateDatasource(Datasource datasource) throws Exception {
+        validateDatasourceName(datasource.getName());
+        if(datasource.getDescription().isEmpty()) throw new Exception("datasource description cannot be empty string");
+        if(datasource.getEngine().isEmpty()) throw new Exception("datasource engine cannot be empty string");
+        if(datasource.getConnection_data().isEmpty()) throw new Exception("datasource connection json object cannot be empty string");
+    }
+
+    public static void validateDatasourceName(String datasourceName) throws Exception {
+        if(datasourceName.isEmpty()) throw new Exception("datasource name cannot be empty string");
+    }
+
+    public static String createRequestBodyForAddDs(String datasourceName, boolean checkConnection) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty(Constants.CREATE_MIND_BODY_PARAM_NAME, datasourceName);
+        jsonObject.addProperty(Constants.ADD_DATASOURCE_CHECK_CONN_BODY_PARAM, checkConnection);
+        return jsonObject.toString();
+    }
 }

@@ -1,8 +1,8 @@
-package mindsdb;
+package com.mindsdb;
 
 import kong.unirest.core.Cache;
 import kong.unirest.core.Unirest;
-import mindsdb.utils.Constants;
+
 import java.util.concurrent.TimeUnit;
 
 public class MindsDb {

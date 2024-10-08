@@ -1,8 +1,8 @@
 # minds-java-sdk
 
 ```java
-import mindsdb.models.Mind;
-import mindsdb.services.Minds;
+import com.mindsdb.models.Mind;
+import com.mindsdb.services.Minds;
 
 import java.util.List;
 

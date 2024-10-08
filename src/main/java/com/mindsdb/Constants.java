@@ -1,7 +1,6 @@
-package mindsdb.utils;
+package com.mindsdb;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class Constants {
 
@@ -33,6 +32,14 @@ public class Constants {
     public static final String GET_MODEL_ENDPOINT = "/api/projects/{" + PROJECT_NAME_ROUTE_PARAM + "}/models/{" + MODEL_NAME_ROUTE_PARAM + "}" ;
     public static final String LIST_TABLE_ENDPOINT = "/api/databases/{" + DATABASE_NAME_ROUTE_PARAM + "}/tables";
     public static final String LIST_MIND_ENDPOINT = "/projects/{" + PROJECT_NAME_ROUTE_PARAM + "}/minds";
+    public static final String CREATE_MIND_ENDPOINT = "/projects/{" + PROJECT_NAME_ROUTE_PARAM + "}/minds";
     public static final String GET_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/{" + MIND_NAME_ROUTE_PARAM + "}";
     public static final String DELETE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/{" + MIND_NAME_ROUTE_PARAM + "}";
+    public static final String UPDATE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/{" + MIND_NAME_ROUTE_PARAM + "}";
+    public static final String CREATE_MIND_BODY_PARAM_NAME = "name";
+    public static final String CREATE_MIND_BODY_PARAM_DATASOURCES = "datasources";
+    public static final String FAILED_REQUEST_ERROR_LOG = "Oh No! Status - {}. Response body - {}";
+    public static final String FAILED_REQUEST_PARSE_LOG = "Parsing Exception: ";
+    public static final String FAILED_REQUEST_RESPONSE_BODY_LOG = "Response body: {}";
+    public static final String SUCCESS_REQUEST_RESPONSE_STATUS_LOG = "Response status: {}, success";
 }

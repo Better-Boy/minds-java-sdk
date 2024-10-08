@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,78 +30,30 @@ public class Mind {
     private String provider;
     private String updated_at;
 
-    public boolean update(String existingMindName, Mind newMind) {
-        String patchBody = Constants.gson.toJson(newMind);
-        AtomicBoolean isUpdated = new AtomicBoolean(false);
-        Unirest.patch(Constants.UPDATE_MIND_ENDPOINT)
-                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
-                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, existingMindName)
-                .body(patchBody)
-                .asString()
-                .ifFailure(stringHttpResponse -> {
-                    if(!stringHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
-                    }
-                })
-                .ifSuccess(stringHttpResponse -> {
-                    logger.debug("Response code - {}, {} updated", stringHttpResponse.getStatus(), existingMindName);
-                    isUpdated.set(true);
-                });
-        return isUpdated.get();
-    }
+    // Uncomment only if projectName is needed explicitly. For now, it's hard-coded to "mindsdb"
+//    public static boolean create(@NonNull String projectName, String mindName, List<String> datasources){
+//        String postBody = Utils.createMindBody(mindName, datasources);
+//        AtomicBoolean isCreated = new AtomicBoolean(false);
+//        Unirest.post(Constants.CREATE_MIND_ENDPOINT)
+//                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, projectName)
+//                .body(postBody)
+//                .asString()
+//                .ifFailure(stringHttpResponse -> {
+//                    if(!stringHttpResponse.isSuccess()){
+//                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
+//                    }
+//                })
+//                .ifSuccess(stringHttpResponse -> {
+//                    logger.debug("Response code - {}, {} created", stringHttpResponse.getStatus(), mindName);
+//                    isCreated.set(true);
+//                });
+//        return isCreated.get();
+//    }
 
-    public boolean update() {
-        String patchBody = Constants.gson.toJson(this);
-        AtomicBoolean isUpdated = new AtomicBoolean(false);
-        Unirest.patch(Constants.UPDATE_MIND_ENDPOINT)
-                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
-                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, name)
-                .body(patchBody)
-                .asString()
-                .ifFailure(stringHttpResponse -> {
-                    if(!stringHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
-                    }
-                })
-                .ifSuccess(stringHttpResponse -> {
-                    logger.debug("Response code - {}, {} updated", stringHttpResponse.getStatus(), name);
-                    isUpdated.set(true);
-                });
-        return isUpdated.get();
-    }
-
-    public boolean delete() throws Exception {
-        return delete(name);
-    }
-
-    public boolean addDatasource(String mindName, String datasourceName, boolean checkConnection) throws Exception {
-        Utils.validateMindName(mindName);
-        Utils.validateDatasourceName(datasourceName);
-        AtomicBoolean isDatasourceAdded = new AtomicBoolean(false);
-        String postBody = Utils.createRequestBodyForAddDs(datasourceName, checkConnection);
-        Unirest.post(Constants.ADD_DATASOURCE_MIND_ENDPOINT)
-                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
-                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, mindName)
-                .routeParam(Constants.DATASOURCE_NAME_ROUTE_PARAM, datasourceName)
-                .body(postBody)
-                .asString()
-                .ifFailure(stringHttpResponse -> {
-                    if(!stringHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
-                    }
-                })
-                .ifSuccess(stringHttpResponse -> {
-                    logger.debug("Response code - {}, {} updated", stringHttpResponse.getStatus(), name);
-                    isDatasourceAdded.set(true);
-                });
-        return isDatasourceAdded.get();
-    }
-
-    public static boolean create(String mindName, List<String> datasources) throws Exception {
-        Utils.validateMindName(mindName);
-        Utils.validateDatasourceList(datasources);
-        String postBody = Utils.createMindBody(mindName, datasources);
-        AtomicBoolean isCreated = new AtomicBoolean(false);
+    private static Optional<Mind> create(Mind mind) throws Exception {
+        Utils.validateMind(mind);
+        String postBody = Constants.gson.toJson(mind);
+        AtomicReference<Optional<Mind>> mindAtomicRef = new AtomicReference<>();
         Unirest.post(Constants.CREATE_MIND_ENDPOINT)
                 .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
                 .body(postBody)
@@ -113,29 +64,18 @@ public class Mind {
                     }
                 })
                 .ifSuccess(stringHttpResponse -> {
-                    logger.debug("Response code - {}, {} created", stringHttpResponse.getStatus(), mindName);
-                    isCreated.set(true);
+                    logger.debug("Response code - {}, {} created", stringHttpResponse.getStatus(), mind.name);
+                    mindAtomicRef.set(Optional.of(mind));
                 });
-        return isCreated.get();
+        return mindAtomicRef.get();
     }
 
-    public static boolean create(@NonNull String projectName, String mindName, List<String> datasources){
-        String postBody = Utils.createMindBody(mindName, datasources);
-        AtomicBoolean isCreated = new AtomicBoolean(false);
-        Unirest.post(Constants.CREATE_MIND_ENDPOINT)
-                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, projectName)
-                .body(postBody)
-                .asString()
-                .ifFailure(stringHttpResponse -> {
-                    if(!stringHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
-                    }
-                })
-                .ifSuccess(stringHttpResponse -> {
-                    logger.debug("Response code - {}, {} created", stringHttpResponse.getStatus(), mindName);
-                    isCreated.set(true);
-                });
-        return isCreated.get();
+    public static Optional<Mind> create(String mindName, List<String> datasources) throws Exception {
+        return create(new Mind(mindName, datasources));
+    }
+
+    public Optional<Mind> create() throws Exception {
+        return create(this);
     }
 
     public static Optional<List<Mind>> list(){
@@ -184,6 +124,10 @@ public class Mind {
         return mindAtomicRef.get();
     }
 
+    public Optional<Mind> get() throws Exception {
+        return get(name);
+    }
+
     public static boolean delete(String mindName) throws Exception {
         Utils.validateMindName(mindName);
         AtomicBoolean isDeleted = new AtomicBoolean(false);
@@ -205,6 +149,79 @@ public class Mind {
                     isDeleted.set(true);
                 });
         return isDeleted.get();
+    }
+
+    public boolean update(String existingMindName, Mind newMind) {
+        String patchBody = Constants.gson.toJson(newMind);
+        AtomicBoolean isUpdated = new AtomicBoolean(false);
+        Unirest.patch(Constants.UPDATE_MIND_ENDPOINT)
+                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
+                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, existingMindName)
+                .body(patchBody)
+                .asString()
+                .ifFailure(stringHttpResponse -> {
+                    if(!stringHttpResponse.isSuccess()){
+                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
+                    }
+                })
+                .ifSuccess(stringHttpResponse -> {
+                    logger.debug("Response code - {}, {} updated", stringHttpResponse.getStatus(), existingMindName);
+                    isUpdated.set(true);
+                });
+        return isUpdated.get();
+    }
+
+    public boolean update() {
+        String patchBody = Constants.gson.toJson(this);
+        AtomicBoolean isUpdated = new AtomicBoolean(false);
+        Unirest.patch(Constants.UPDATE_MIND_ENDPOINT)
+                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
+                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, name)
+                .body(patchBody)
+                .asString()
+                .ifFailure(stringHttpResponse -> {
+                    if(!stringHttpResponse.isSuccess()){
+                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
+                    }
+                })
+                .ifSuccess(stringHttpResponse -> {
+                    logger.debug("Response code - {}, {} updated", stringHttpResponse.getStatus(), name);
+                    isUpdated.set(true);
+                });
+        return isUpdated.get();
+    }
+
+    public static boolean addDatasource(String mindName, String newDatasourceName, boolean checkConnection) throws Exception {
+        Utils.validateMindName(mindName);
+        Utils.validateDatasourceName(newDatasourceName);
+        AtomicBoolean isDatasourceAdded = new AtomicBoolean(false);
+        String postBody = Utils.createRequestBodyForAddDs(newDatasourceName, checkConnection);
+        System.out.println(postBody);
+        Unirest.post(Constants.ADD_DATASOURCE_MIND_ENDPOINT)
+                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
+                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, mindName)
+                .body(postBody)
+                .asString()
+                .ifFailure(stringHttpResponse -> {
+                    System.out.println(stringHttpResponse.getRequestSummary().getUrl());
+                    if(!stringHttpResponse.isSuccess()){
+                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
+                    }
+                })
+                .ifSuccess(stringHttpResponse -> {
+                    logger.debug("Response code - {}. New {} datasource added", stringHttpResponse.getStatus(), newDatasourceName);
+                    isDatasourceAdded.set(true);
+                });
+        return isDatasourceAdded.get();
+    }
+
+    public boolean addDatasource(String newDatasourceName) throws Exception {
+        Utils.validateDatasourceName(newDatasourceName);
+        return addDatasource(name, newDatasourceName, true);
+    }
+
+    public boolean delete() throws Exception {
+        return delete(name);
     }
 
     @Override

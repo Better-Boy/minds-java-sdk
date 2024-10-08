@@ -16,10 +16,9 @@ public class Utils {
         return jsonObject.toString();
     }
 
-    public static boolean validateMind(Mind mind) throws Exception {
+    public static void validateMind(Mind mind) throws Exception {
         if(mind.getName().isEmpty()) throw new Exception("Mind name cannot be empty");
         if(mind.getDatasources().isEmpty()) throw new Exception("Datasources list cannot be empty. A mind must atleast have one datasource.");
-        return true;
     }
 
     public static void validateMindName(String mindName) throws Exception {

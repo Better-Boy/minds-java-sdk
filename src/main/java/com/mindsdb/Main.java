@@ -1,9 +1,9 @@
 package com.mindsdb;
 
+import com.google.gson.JsonObject;
 import com.mindsdb.Mind;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 public class Main {
 
@@ -11,13 +11,62 @@ public class Main {
         String apiKey = "";
         String baseUrl = "https://staging.mdb.ai";
         MindsDb.init(apiKey, baseUrl);
-//        Optional<List<Mind>> mindList = Minds.list();
+
+        // Done
+//        Mind mind = new Mind("newmind", Arrays.asList("testds"));
+//        mind.create();
+
+        // Done
+//        Mind mind = Mind.builder().name("newmindone").datasources(Arrays.asList("testds")).build();
+//        mind.create();
+
+        // Done
+//        boolean isCreated = Mind.create("newmindtwo", Arrays.asList("testds"));
+
+        // Done
+//        Mind mind = Mind.builder().name("newmindthre")
+//                .datasources(Arrays.asList("testds"))
+//                .model_name("gpt")
+//                .provider("opsfdv")
+//                .build();
+//        mind.create();
+
+        // Done
+//        JsonObject jsonObject = new JsonObject();
+//        jsonObject.addProperty("hi", "jello");
+//        Mind mind = Mind.builder().name("t4")
+//                .datasources(Arrays.asList("testds"))
+//                .model_name("llama-3.2")
+//                .provider("meta")
+//                .parameters(jsonObject)
+//                .build();
+//        mind.create();
+
+        // Done
+//        boolean isCreated = Mind.create("mindsdb", "newmindthreee", Arrays.asList("testds"));
+
+//        Optional<List<Mind>> mindList = Mind.list();
 //        System.out.println(mindList.get());
-//        Optional<Mind> mind = Minds.get("newtest");
+
+//        Optional<Mind> mind = Mind.get("t54");
 //        System.out.println(mind.get());
-//        Optional<Datasource> datasource = Datasources.get("testds");
-//        System.out.println(datasource.isEmpty());
-//        boolean isDeleted = Minds.delete("newtestt");
+//
+//        mind = new Mind("t54", Collections.emptyList()).get();
+//        System.out.println(mind.get());
+
+
+//        boolean isDeleted = Mind.delete("t32");
+//        System.out.println(isDeleted);
+//
+//        isDeleted = new Mind("t382", Collections.emptyList()).delete();
+//        System.out.println(isDeleted);
+
+//        boolean isAdded = Mind.addDatasource("t54", "newtestds", true);
+//        System.out.println(isAdded);
+
+//        boolean isAdded = new Mind("t54", Collections.emptyList()).addDatasource("newtestds");
+//        System.out.println(isAdded);
+
 //        Datasource datasource = Datasource.
 //        Mind mind = Mind.builder().datasources(Collections.emptyList()).name("sfd").build();
 //        Mind mind = new Mind("hi", Collections.emptyList());

@@ -12,6 +12,10 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Represents a data source class for connecting to external data stores.
+ * This class provides methods to create, update, retrieve, and delete data sources.
+ */
 @Getter
 @Setter
 @Builder
@@ -20,21 +24,31 @@ public class Datasource {
 
     private static final Logger logger = LoggerFactory.getLogger(Datasource.class);
 
+    /** The name of the data source. */
     @NonNull
     private String name;
 
+    /** The type of engine used for the data source. */
     @NonNull
     private String engine;
 
+    /** A description of the data source. */
     @NonNull
     private String description;
 
+    /** Connection data in JSON format. */
     @NonNull
     private JsonObject connection_data;
 
-    @NonNull
+    /** A list of tables associated with the data source. */
     private List<String> tables;
 
+    /**
+     * Creates a new data source.
+     *
+     * @return true if the data source was created successfully; false otherwise.
+     * @throws Exception if validation fails or an error occurs during the request.
+     */
     public boolean create() throws Exception {
         Utils.validateDatasource(this);
         String postBody = toString();
@@ -54,6 +68,12 @@ public class Datasource {
         return isCreated.get();
     }
 
+    /**
+     * Lists all available data sources.
+     *
+     * @return an Optional containing a list of data sources if the request was successful;
+     *         otherwise, an empty Optional.
+     */
     public static Optional<List<Datasource>> list(){
         AtomicReference<Optional<List<Datasource>>> listAtomicRef = new AtomicReference<>();
         Unirest.get(Constants.LIST_DATASOURCE_ENDPOINT)
@@ -77,34 +97,46 @@ public class Datasource {
         return listAtomicRef.get();
     }
 
+    /**
+     * Retrieves a specific data source by name.
+     *
+     * @param datasourceName the name of the data source to retrieve.
+     * @return an Optional containing the data source if found;
+     *         otherwise, an empty Optional.
+     */
     public static Optional<Datasource> get(String datasourceName) {
         AtomicReference<Optional<Datasource>> optionalDatasource = new AtomicReference<>(Optional.empty());
         Unirest.get(Constants.GET_DATASOURCE_ENDPOINT)
                 .routeParam(Constants.DATASOURCE_NAME_ROUTE_PARAM, datasourceName)
-                .asObject(Datasource.class)
-                .ifFailure(mindHttpResponse -> {
-                    if(!mindHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, mindHttpResponse.getStatus(), mindHttpResponse.getBody());
+                .asString()
+                .ifFailure(httpResponse -> {
+                    if(!httpResponse.isSuccess()){
+                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
                     }
-                    mindHttpResponse.getParsingError().ifPresent(parsingException -> {
-                        logger.error(Constants.FAILED_REQUEST_PARSE_LOG, parsingException);
-                        logger.error(Constants.FAILED_REQUEST_RESPONSE_BODY_LOG, parsingException.getOriginalBody());
-                    });
                 })
-                .ifSuccess(mindHttpResponse -> {
-                    logger.debug(Constants.SUCCESS_REQUEST_RESPONSE_STATUS_LOG, mindHttpResponse.getStatus());
-                    optionalDatasource.set(Optional.of(mindHttpResponse.getBody()));
+                .ifSuccess(httpResponse -> {
+                    logger.debug(Constants.SUCCESS_REQUEST_RESPONSE_STATUS_LOG, httpResponse.getStatus());
+                    Datasource resDatasource = Constants.gson.fromJson(httpResponse.getBody(), Datasource.class);
+                    optionalDatasource.set(Optional.of(resDatasource));
                 });
         return optionalDatasource.get();
     }
 
+    /**
+     * Updates the existing data source.
+     *
+     * @return true if the data source was updated successfully; false otherwise.
+     * @throws Exception if an error occurs during the request.
+     */
     public boolean update() throws Exception {
-        String patchBody = Constants.gson.toJson(this);
+        String patchBody = Utils.generateDatasourceUpdateBody(this);
         AtomicBoolean isUpdated = new AtomicBoolean(false);
         Unirest.patch(Constants.UPDATE_DATASOURCE_ENDPOINT)
+                .routeParam(Constants.DATASOURCE_NAME_ROUTE_PARAM, name)
                 .body(patchBody)
                 .asString()
                 .ifFailure(stringHttpResponse -> {
+                    System.out.println(stringHttpResponse.getRequestSummary().getUrl());
                     if(!stringHttpResponse.isSuccess()){
                         logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
                     }
@@ -116,6 +148,12 @@ public class Datasource {
         return isUpdated.get();
     }
 
+    /**
+     * Deletes a data source by name.
+     *
+     * @param datasourceName the name of the data source to delete.
+     * @return true if the data source was deleted successfully; false otherwise.
+     */
     public static boolean delete(String datasourceName) {
         AtomicBoolean isDeleted = new AtomicBoolean(false);
         Unirest.delete(Constants.DELETE_DATASOURCE_ENDPOINT)
@@ -137,10 +175,20 @@ public class Datasource {
         return isDeleted.get();
     }
 
+    /**
+     * Deletes the current instance of the data source.
+     *
+     * @return true if the data source was deleted successfully; false otherwise.
+     */
     public boolean delete(){
         return delete(name);
     }
 
+    /**
+     * Converts the data source object to its JSON representation.
+     *
+     * @return a JSON string representation of the data source.
+     */
     @Override
     public String toString(){
         return Constants.gson.toJson(this);

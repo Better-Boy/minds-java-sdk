@@ -3,6 +3,7 @@ package com.mindsdb;
 import com.google.gson.JsonObject;
 import com.mindsdb.Mind;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 
 public class Main {
@@ -12,8 +13,8 @@ public class Main {
         String baseUrl = "https://staging.mdb.ai";
         MindsDb.init(apiKey, baseUrl);
 
-        // Done
-//        Mind mind = new Mind("newmind", Arrays.asList("testds"));
+//         Done
+//        Mind mind = new Mind("nd-", Arrays.asList("testds"));
 //        mind.create();
 
         // Done
@@ -54,7 +55,6 @@ public class Main {
 //        mind = new Mind("t54", Collections.emptyList()).get();
 //        System.out.println(mind.get());
 
-
 //        boolean isDeleted = Mind.delete("t32");
 //        System.out.println(isDeleted);
 //
@@ -67,20 +67,34 @@ public class Main {
 //        boolean isAdded = new Mind("t54", Collections.emptyList()).addDatasource("newtestds");
 //        System.out.println(isAdded);
 
-//        Datasource datasource = Datasource.
-//        Mind mind = Mind.builder().datasources(Collections.emptyList()).name("sfd").build();
-//        Mind mind = new Mind("hi", Collections.emptyList());
+//        Mind mind = new Mind("t54", Arrays.asList("testds"));
+//        boolean isUpdated = Mind.update("t54", mind);
+//        System.out.println(isUpdated);
 
-//        Datasources.delete("testds");
-//        Datasources.delete("testds1");
-//        List<Datasource> datasources = Datasources.list();
-//        System.out.println(datasources);
-//        boolean isCreated = Minds.create("newtestt", Arrays.asList("testds"));
-//        System.out.println(isCreated);
-//        String s = "[{\"connection_data\":{\"database\":\"demo\",\"host\":\"samples.mindsdb.com\",\"integrations_name\":\"testds\",\"password\":\"demo_password\",\"port\":\"5432\",\"publish\":true,\"sampledb\":true,\"schema\":\"demo_data\",\"test\":true,\"type\":\"postgres\",\"user\":\"demo_user\",\"new-data\":[\"hi\",\"hee\",\"asf\"]},\"created_at\":\"Tue, 08 Oct 2024 01:12:37 GMT\",\"description\":\"Demo database\",\"engine\":\"postgres\",\"name\":\"testds\",\"tables\":[\"car_info\",\"car_sales\",\"financial_headlines\",\"home_rentals\",\"iris\",\"cta\",\"amazon_reviews\",\"review_sentiment\",\"chat_llm_mindsdb_docs\",\"house_sales\",\"used_car_price\",\"fraud_detection\",\"telecom_customer_churn\",\"crm_demo\",\"customer_churn\",\"bank_customer_transactions\",\"user_comments\",\"customer_support_chat\",\"jobs\"]}]";
-//        Type empTypeList = ;
-//        Gson gson = new Gson();
-//        List<Datasource> datasources = gson.fromJson(s, empTypeList);
-//        System.out.println(datasources.get(0).getConnection_data().get("new-data"));
+//        Optional<Mind> mind = Mind.get("t54");
+//        Mind t54Mind = mind.get();
+//        System.out.println(t54Mind);
+//        t54Mind.getParameters().addProperty("indi","soon");
+//        t54Mind.update();
+
+//        Optional<Datasource> ds = Datasource.get("t67");
+//        System.out.println(ds.get());
+
+//        Optional<List<Datasource>> list = Datasource.list();
+//        System.out.println(list.get());
+
+//        Datasource.delete("newestds");
+
+
+        String con = "{\"database\":\"demo\",\"host\":\"samples.mindsdb.com\",\"integrations_name\":\"newds\",\"password\":\"demo_password\",\"port\":\"5432\",\"publish\":true,\"test\":true,\"type\":\"postgres\",\"user\":\"demo_user\",\"schema\":\"demo_data\",\"sampledb\":true}";
+        JsonObject conn  = Constants.gson.fromJson(con, JsonObject.class);
+        Datasource datasource = Datasource.builder().description("newest ds")
+                .name("t167")
+                .engine("postgres")
+                .connection_data(conn).build();
+        datasource.create();
+
+
+
     }
 }

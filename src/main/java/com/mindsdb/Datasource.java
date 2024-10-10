@@ -1,16 +1,16 @@
 package com.mindsdb;
 
 import com.google.gson.JsonObject;
-import kong.unirest.core.GenericType;
-import kong.unirest.core.Unirest;
+import com.mindsdb.utils.RestUtils;
+import com.mindsdb.utils.Utils;
+import kong.unirest.core.HttpResponse;
 import lombok.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a data source class for connecting to external data stores.
@@ -20,9 +20,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @Setter
 @Builder
 @EqualsAndHashCode
+@Slf4j
 public class Datasource {
-
-    private static final Logger logger = LoggerFactory.getLogger(Datasource.class);
 
     /** The name of the data source. */
     @NonNull
@@ -41,7 +40,7 @@ public class Datasource {
     private JsonObject connection_data;
 
     /** A list of tables associated with the data source. */
-    private List<String> tables;
+    @Builder.Default private List<String> tables = new ArrayList<>();
 
     /**
      * Creates a new data source.
@@ -52,20 +51,15 @@ public class Datasource {
     public boolean create() throws Exception {
         Utils.validateDatasource(this);
         String postBody = toString();
-        AtomicBoolean isCreated = new AtomicBoolean(false);
-        Unirest.post(Constants.CREATE_DATASOURCE_ENDPOINT)
-                .body(postBody)
-                .asString()
-                .ifFailure(stringHttpResponse -> {
-                    if(!stringHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
-                    }
-                })
-                .ifSuccess(stringHttpResponse -> {
-                    logger.debug("Response code - {}, {} created", stringHttpResponse.getStatus(), name);
-                    isCreated.set(true);
-                });
-        return isCreated.get();
+        HttpResponse<String> httpResponse = RestUtils.sendPostRequest(Constants.CREATE_DATASOURCE_ENDPOINT, postBody);
+
+        if(!httpResponse.isSuccess()){
+            log.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
+            return false;
+        }
+
+        log.debug("Response code - {}, {} created", httpResponse.getStatus(), name);
+        return true;
     }
 
     /**
@@ -75,26 +69,15 @@ public class Datasource {
      *         otherwise, an empty Optional.
      */
     public static Optional<List<Datasource>> list(){
-        AtomicReference<Optional<List<Datasource>>> listAtomicRef = new AtomicReference<>();
-        Unirest.get(Constants.LIST_DATASOURCE_ENDPOINT)
-                .asObject(new GenericType<List<Datasource>>(){})
-                .ifFailure(listHttpResponse -> {
+        HttpResponse<String> listHttpResponse = RestUtils.sendGetRequest(Constants.LIST_DATASOURCE_ENDPOINT);
 
-                    if(!listHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, listHttpResponse.getStatus(), listHttpResponse.getBody());
-                    }
+        if(!listHttpResponse.isSuccess()){
+            log.error(Constants.FAILED_REQUEST_ERROR_LOG, listHttpResponse.getStatus(), listHttpResponse.getBody());
+            return Optional.empty();
+        }
 
-                    listHttpResponse.getParsingError().ifPresent(parsingException -> {
-                        logger.error(Constants.FAILED_REQUEST_PARSE_LOG, parsingException);
-                        logger.error(Constants.FAILED_REQUEST_RESPONSE_BODY_LOG, parsingException.getOriginalBody());
-                    });
-                })
-                .ifSuccess(listHttpResponse -> {
-                    logger.debug(Constants.SUCCESS_REQUEST_RESPONSE_STATUS_LOG, listHttpResponse.getStatus());
-                    listAtomicRef.set(Optional.of(listHttpResponse.getBody()));
-                });
-
-        return listAtomicRef.get();
+        List<Datasource> datasources = Utils.parseStringToDatasourceList(listHttpResponse.getBody());
+        return Optional.of(datasources);
     }
 
     /**
@@ -105,47 +88,36 @@ public class Datasource {
      *         otherwise, an empty Optional.
      */
     public static Optional<Datasource> get(String datasourceName) {
-        AtomicReference<Optional<Datasource>> optionalDatasource = new AtomicReference<>(Optional.empty());
-        Unirest.get(Constants.GET_DATASOURCE_ENDPOINT)
-                .routeParam(Constants.DATASOURCE_NAME_ROUTE_PARAM, datasourceName)
-                .asString()
-                .ifFailure(httpResponse -> {
-                    if(!httpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
-                    }
-                })
-                .ifSuccess(httpResponse -> {
-                    logger.debug(Constants.SUCCESS_REQUEST_RESPONSE_STATUS_LOG, httpResponse.getStatus());
-                    Datasource resDatasource = Constants.gson.fromJson(httpResponse.getBody(), Datasource.class);
-                    optionalDatasource.set(Optional.of(resDatasource));
-                });
-        return optionalDatasource.get();
+        String endPoint = String.format(Constants.GET_DATASOURCE_ENDPOINT, datasourceName);
+        HttpResponse<String> httpResponse = RestUtils.sendGetRequest(endPoint);
+
+        if(!httpResponse.isSuccess()){
+            log.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
+            return Optional.empty();
+        }
+
+        log.debug(Constants.SUCCESS_REQUEST_RESPONSE_STATUS_LOG, httpResponse.getStatus());
+        Datasource datasource = Utils.parseStringToDatasource(httpResponse.getBody());
+        return Optional.of(datasource);
     }
 
     /**
      * Updates the existing data source.
      *
      * @return true if the data source was updated successfully; false otherwise.
-     * @throws Exception if an error occurs during the request.
      */
-    public boolean update() throws Exception {
+    public boolean update() {
         String patchBody = Utils.generateDatasourceUpdateBody(this);
-        AtomicBoolean isUpdated = new AtomicBoolean(false);
-        Unirest.patch(Constants.UPDATE_DATASOURCE_ENDPOINT)
-                .routeParam(Constants.DATASOURCE_NAME_ROUTE_PARAM, name)
-                .body(patchBody)
-                .asString()
-                .ifFailure(stringHttpResponse -> {
-                    System.out.println(stringHttpResponse.getRequestSummary().getUrl());
-                    if(!stringHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
-                    }
-                })
-                .ifSuccess(stringHttpResponse -> {
-                    logger.debug("Response code - {}, {} updated", stringHttpResponse.getStatus(), name);
-                    isUpdated.set(true);
-                });
-        return isUpdated.get();
+        String endPoint = String.format(Constants.GET_DATASOURCE_ENDPOINT, name);
+        HttpResponse<String> httpResponse = RestUtils.sendPatchRequest(endPoint, patchBody);
+
+        if(!httpResponse.isSuccess()){
+            log.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
+            return false;
+        }
+
+        log.debug("Response code - {}, {} updated", httpResponse.getStatus(), name);
+        return true;
     }
 
     /**
@@ -155,24 +127,15 @@ public class Datasource {
      * @return true if the data source was deleted successfully; false otherwise.
      */
     public static boolean delete(String datasourceName) {
-        AtomicBoolean isDeleted = new AtomicBoolean(false);
-        Unirest.delete(Constants.DELETE_DATASOURCE_ENDPOINT)
-                .routeParam(Constants.DATASOURCE_NAME_ROUTE_PARAM, datasourceName)
-                .asString()
-                .ifFailure(httpResponse -> {
-                    if(!httpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
-                    }
-                    httpResponse.getParsingError().ifPresent(parsingException -> {
-                        logger.error(Constants.FAILED_REQUEST_PARSE_LOG, parsingException);
-                        logger.error(Constants.FAILED_REQUEST_RESPONSE_BODY_LOG, parsingException.getOriginalBody());
-                    });
-                })
-                .ifSuccess(httpResponse -> {
-                    logger.debug("Response code - {}, {} deleted", httpResponse.getStatus(), datasourceName);
-                    isDeleted.set(true);
-                });
-        return isDeleted.get();
+        String endPoint = String.format(Constants.GET_DATASOURCE_ENDPOINT, datasourceName);
+        HttpResponse<String> httpResponse = RestUtils.sendDeleteRequest(endPoint);
+
+        if(!httpResponse.isSuccess()){
+            log.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
+            return false;
+        }
+        log.debug("Response code - {}, {} deleted", httpResponse.getStatus(), datasourceName);
+        return true;
     }
 
     /**

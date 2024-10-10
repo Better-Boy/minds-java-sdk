@@ -1,6 +1,10 @@
-package com.mindsdb;
+package com.mindsdb.utils;
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import com.mindsdb.Constants;
+import com.mindsdb.Datasource;
+import com.mindsdb.Mind;
 
 import java.util.List;
 
@@ -116,4 +120,47 @@ public class Utils {
                 }).create();
         return gson.toJson(datasource);
     }
+
+    /**
+     * Parses a JSON string into a Mind object.
+     *
+     * @param mindJsonString The JSON string representing a Mind object.
+     * @return              A Mind object parsed from the provided JSON string.
+     */
+    public static Mind parseStringToMind(String mindJsonString){
+        return Constants.gson.fromJson(mindJsonString, Mind.class);
+    }
+
+    /**
+     * Parses a JSON string into a Datasource object.
+     *
+     * @param dsJsonString The JSON string representing a Datasource object.
+     * @return            A Datasource object parsed from the provided JSON string.
+     */
+    public static Datasource parseStringToDatasource(String dsJsonString){
+        return Constants.gson.fromJson(dsJsonString, Datasource.class);
+    }
+
+    /**
+     * Parses a JSON string into a list of Mind objects.
+     *
+     * @param mindListJsonString The JSON string representing a list of Mind objects.
+     * @return                  A List of Mind objects parsed from the provided JSON string.
+     */
+    public static List<Mind> parseStringToMindList(String mindListJsonString){
+        TypeToken<List<Mind>> typeToken = new TypeToken<List<Mind>>(){};
+        return Constants.gson.fromJson(mindListJsonString, typeToken.getType());
+    }
+
+    /**
+     * Parses a JSON string into a list of Datasource objects.
+     *
+     * @param dsListJsonString The JSON string representing a list of Datasource objects.
+     * @return                A List of Datasource objects parsed from the provided JSON string.
+     */
+    public static List<Datasource> parseStringToDatasourceList(String dsListJsonString){
+        TypeToken<List<Datasource>> typeToken = new TypeToken<List<Datasource>>(){};
+        return Constants.gson.fromJson(dsListJsonString, typeToken.getType());
+    }
+
 }

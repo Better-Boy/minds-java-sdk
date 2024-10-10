@@ -20,17 +20,17 @@ public class Constants {
 
     public static final String LIST_DATASOURCE_ENDPOINT = "/datasources";
     public static final String CREATE_DATASOURCE_ENDPOINT = "/datasources";
-    public static final String GET_DATASOURCE_ENDPOINT = LIST_DATASOURCE_ENDPOINT + "/{" + DATASOURCE_NAME_ROUTE_PARAM + "}";
-    public static final String UPDATE_DATASOURCE_ENDPOINT = LIST_DATASOURCE_ENDPOINT + "/{" + DATASOURCE_NAME_ROUTE_PARAM + "}";
-    public static final String DELETE_DATASOURCE_ENDPOINT = LIST_DATASOURCE_ENDPOINT + "/{" + DATASOURCE_NAME_ROUTE_PARAM + "}";
+    public static final String GET_DATASOURCE_ENDPOINT = LIST_DATASOURCE_ENDPOINT + "/%s";
+    public static final String UPDATE_DATASOURCE_ENDPOINT = LIST_DATASOURCE_ENDPOINT + "/%s";
+    public static final String DELETE_DATASOURCE_ENDPOINT = LIST_DATASOURCE_ENDPOINT + "/%s";
 
 
-    public static final String LIST_MIND_ENDPOINT = "/projects/{" + PROJECT_NAME_ROUTE_PARAM + "}/minds";
-    public static final String CREATE_MIND_ENDPOINT = "/projects/{" + PROJECT_NAME_ROUTE_PARAM + "}/minds";
-    public static final String GET_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/{" + MIND_NAME_ROUTE_PARAM + "}";
-    public static final String DELETE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/{" + MIND_NAME_ROUTE_PARAM + "}";
-    public static final String UPDATE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/{" + MIND_NAME_ROUTE_PARAM + "}";
-    public static final String ADD_DATASOURCE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/{" + MIND_NAME_ROUTE_PARAM + "}" + CREATE_DATASOURCE_ENDPOINT;
+    public static final String LIST_MIND_ENDPOINT = "/projects/%s/minds";
+    public static final String CREATE_MIND_ENDPOINT = "/projects/%s/minds";
+    public static final String GET_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/%s";
+    public static final String DELETE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/%s";
+    public static final String UPDATE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/%s";
+    public static final String ADD_DATASOURCE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/%s" + CREATE_DATASOURCE_ENDPOINT;
 
     public static final String FAILED_REQUEST_ERROR_LOG = "Oh No! Status - {}. Response body - {}";
     public static final String FAILED_REQUEST_PARSE_LOG = "Parsing Exception: ";

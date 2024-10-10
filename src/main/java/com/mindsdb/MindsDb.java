@@ -56,4 +56,8 @@ public class MindsDb {
                 .cacheResponses(new Cache.Builder().maxAge(1, TimeUnit.MINUTES))
                 .retryAfter(true, 2);
     }
+
+    public static void shutDownConnection(){
+        Unirest.shutDown();
+    }
 }

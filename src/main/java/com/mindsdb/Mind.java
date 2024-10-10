@@ -1,16 +1,15 @@
 package com.mindsdb;
 
 import com.google.gson.JsonObject;
-import kong.unirest.core.GenericType;
-import kong.unirest.core.Unirest;
+import com.mindsdb.utils.RestUtils;
+import com.mindsdb.utils.Utils;
+import kong.unirest.core.HttpResponse;
 import lombok.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The {@code Mind} class represents a model for handling minds in the system.
@@ -34,9 +33,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @EqualsAndHashCode
+@Slf4j
 public class Mind {
-
-    private static final Logger logger = LoggerFactory.getLogger(Mind.class);
 
     /**
      * The name of the mind.
@@ -46,7 +44,7 @@ public class Mind {
     /**
      * A list of datasource names associated with the mind.
      */
-    @NonNull private List<String> datasources;
+    @Builder.Default private List<String> datasources = new ArrayList<>();
 
     /**
      * The creation timestamp of the mind.
@@ -80,36 +78,19 @@ public class Mind {
      * @return an {@code Optional<Mind>} containing the created mind if successful, or empty if the creation failed
      * @throws Exception if validation fails or an error occurs during the request
      */
-    private static Optional<Mind> create(Mind mind) throws Exception {
+    private boolean create(Mind mind) throws Exception {
         Utils.validateMind(mind);
         String postBody = Constants.gson.toJson(mind);
-        AtomicReference<Optional<Mind>> mindAtomicRef = new AtomicReference<>();
-        Unirest.post(Constants.CREATE_MIND_ENDPOINT)
-                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
-                .body(postBody)
-                .asString()
-                .ifFailure(stringHttpResponse -> {
-                    if(!stringHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
-                    }
-                })
-                .ifSuccess(stringHttpResponse -> {
-                    logger.debug("Response code - {}, {} created", stringHttpResponse.getStatus(), mind.name);
-                    mindAtomicRef.set(Optional.of(mind));
-                });
-        return mindAtomicRef.get();
-    }
+        String endPoint = String.format(Constants.CREATE_MIND_ENDPOINT, Constants.MINDS_PROJECT);
+        HttpResponse<String> httpResponse = RestUtils.sendPostRequest(endPoint, postBody);
 
-    /**
-     * Creates a new mind with the specified name and datasources.
-     *
-     * @param mindName the name of the new mind
-     * @param datasources the list of datasource names
-     * @return an {@code Optional<Mind>} containing the created mind if successful, or empty if the creation failed
-     * @throws Exception if validation fails or an error occurs during the request
-     */
-    public static Optional<Mind> create(String mindName, List<String> datasources) throws Exception {
-        return create(new Mind(mindName, datasources));
+        if(!httpResponse.isSuccess()){
+            log.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
+            return false;
+        }
+
+        log.debug("Response code - {}, {} created", httpResponse.getStatus(), mind.name);
+        return true;
     }
 
     /**
@@ -118,7 +99,7 @@ public class Mind {
      * @return an {@code Optional<Mind>} containing the created mind if successful, or empty if the creation failed
      * @throws Exception if validation fails or an error occurs during the request
      */
-    public Optional<Mind> create() throws Exception {
+    public boolean create() throws Exception {
         return create(this);
     }
 
@@ -128,26 +109,16 @@ public class Mind {
      * @return an {@code Optional<List<Mind>>} containing the list of minds if successful, or empty if the request failed
      */
     public static Optional<List<Mind>> list(){
-        AtomicReference<Optional<List<Mind>>> mindListAtomicRef = new AtomicReference<>();
-        Unirest.get(Constants.LIST_MIND_ENDPOINT)
-                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
-                .asObject(new GenericType<List<Mind>>(){})
-                .ifFailure(listHttpResponse -> {
+        String endPoint = String.format(Constants.LIST_MIND_ENDPOINT, Constants.MINDS_PROJECT);
+        HttpResponse<String> listHttpResponse = RestUtils.sendGetRequest(endPoint);
 
-                    if(!listHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, listHttpResponse.getStatus(), listHttpResponse.getBody());
-                    }
+        if(!listHttpResponse.isSuccess()){
+            log.error(Constants.FAILED_REQUEST_ERROR_LOG, listHttpResponse.getStatus(), listHttpResponse.getBody());
+            return Optional.empty();
+        }
 
-                    listHttpResponse.getParsingError().ifPresent(parsingException -> {
-                        logger.error(Constants.FAILED_REQUEST_PARSE_LOG, parsingException);
-                        logger.error(Constants.FAILED_REQUEST_RESPONSE_BODY_LOG, parsingException.getOriginalBody());
-                    });
-                })
-                .ifSuccess(listHttpResponse -> {
-                    logger.debug(Constants.SUCCESS_REQUEST_RESPONSE_STATUS_LOG, listHttpResponse.getStatus());
-                    mindListAtomicRef.set(Optional.of(listHttpResponse.getBody()));
-                });
-        return mindListAtomicRef.get();
+        List<Mind> mindList = Utils.parseStringToMindList(listHttpResponse.getBody());
+        return Optional.of(mindList);
     }
 
     /**
@@ -159,22 +130,16 @@ public class Mind {
      */
     public static Optional<Mind> get(String mindName) throws Exception {
         Utils.validateMindName(mindName);
-        AtomicReference<Optional<Mind>> mindAtomicRef = new AtomicReference<>();
-        Unirest.get(Constants.GET_MIND_ENDPOINT)
-                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
-                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, mindName)
-                .asString()
-                .ifFailure(mindHttpResponse -> {
-                    if(!mindHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, mindHttpResponse.getStatus(), mindHttpResponse.getBody());
-                    }
-                })
-                .ifSuccess(mindHttpResponse -> {
-                    logger.debug(Constants.SUCCESS_REQUEST_RESPONSE_STATUS_LOG, mindHttpResponse.getStatus());
-                    Mind resMind = Constants.gson.fromJson(mindHttpResponse.getBody(), Mind.class);
-                    mindAtomicRef.set(Optional.of(resMind));
-                });
-        return mindAtomicRef.get();
+        String endPoint = String.format(Constants.GET_MIND_ENDPOINT, Constants.MINDS_PROJECT, mindName);
+        HttpResponse<String> httpResponse = RestUtils.sendGetRequest(endPoint);
+
+        if(!httpResponse.isSuccess()){
+            log.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
+            return Optional.empty();
+        }
+
+        Mind resMind = Utils.parseStringToMind(httpResponse.getBody());
+        return Optional.of(resMind);
     }
 
     public Optional<Mind> get() throws Exception {
@@ -190,25 +155,15 @@ public class Mind {
      */
     public static boolean delete(String mindName) throws Exception {
         Utils.validateMindName(mindName);
-        AtomicBoolean isDeleted = new AtomicBoolean(false);
-        Unirest.delete(Constants.DELETE_MIND_ENDPOINT)
-                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
-                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, mindName)
-                .asString()
-                .ifFailure(httpResponse -> {
-                    if(!httpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
-                    }
-                    httpResponse.getParsingError().ifPresent(parsingException -> {
-                        logger.error(Constants.FAILED_REQUEST_PARSE_LOG, parsingException);
-                        logger.error(Constants.FAILED_REQUEST_RESPONSE_BODY_LOG, parsingException.getOriginalBody());
-                    });
-                })
-                .ifSuccess(httpResponse -> {
-                    logger.debug("Response code - {}, {} deleted", httpResponse.getStatus(), mindName);
-                    isDeleted.set(true);
-                });
-        return isDeleted.get();
+        String endPoint = String.format(Constants.DELETE_MIND_ENDPOINT, Constants.MINDS_PROJECT, mindName);
+        HttpResponse<String> httpResponse = RestUtils.sendDeleteRequest(endPoint);
+
+        if(!httpResponse.isSuccess()){
+            log.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
+            return false;
+        }
+        log.debug("Response code - {}, {} deleted", httpResponse.getStatus(), mindName);
+        return true;
     }
 
     /**
@@ -218,24 +173,24 @@ public class Mind {
      * @param newMind the new mind data to update
      * @return {@code true} if the mind was updated successfully, {@code false} otherwise
      */
-    public static boolean update(String existingMindName, Mind newMind) {
+    public static boolean update(String existingMindName, Mind newMind) throws Exception {
+        Utils.validateMindName(existingMindName);
+
+        Utils.validateMindName(newMind.getName());
+
         String patchBody = Constants.gson.toJson(newMind);
-        AtomicBoolean isUpdated = new AtomicBoolean(false);
-        Unirest.patch(Constants.UPDATE_MIND_ENDPOINT)
-                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
-                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, existingMindName)
-                .body(patchBody)
-                .asString()
-                .ifFailure(stringHttpResponse -> {
-                    if(!stringHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
-                    }
-                })
-                .ifSuccess(stringHttpResponse -> {
-                    logger.debug("Response code - {}, {} updated", stringHttpResponse.getStatus(), existingMindName);
-                    isUpdated.set(true);
-                });
-        return isUpdated.get();
+
+        String endPoint = String.format(Constants.UPDATE_MIND_ENDPOINT, Constants.MINDS_PROJECT, existingMindName);
+
+        HttpResponse<String> httpResponse = RestUtils.sendPatchRequest(endPoint, patchBody);
+
+        if(!httpResponse.isSuccess()){
+            log.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
+            return false;
+        }
+
+        log.debug("Response code - {}, {} updated", httpResponse.getStatus(), existingMindName);
+        return true;
     }
 
     /**
@@ -243,24 +198,8 @@ public class Mind {
      *
      * @return {@code true} if the mind was updated successfully, {@code false} otherwise
      */
-    public boolean update() {
-        String patchBody = Constants.gson.toJson(this);
-        AtomicBoolean isUpdated = new AtomicBoolean(false);
-        Unirest.patch(Constants.UPDATE_MIND_ENDPOINT)
-                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
-                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, name)
-                .body(patchBody)
-                .asString()
-                .ifFailure(stringHttpResponse -> {
-                    if(!stringHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
-                    }
-                })
-                .ifSuccess(stringHttpResponse -> {
-                    logger.debug("Response code - {}, {} updated", stringHttpResponse.getStatus(), name);
-                    isUpdated.set(true);
-                });
-        return isUpdated.get();
+    public boolean update() throws Exception {
+        return update(name, this);
     }
 
     /**
@@ -274,25 +213,19 @@ public class Mind {
      */
     public static boolean addDatasource(String mindName, String newDatasourceName, boolean checkConnection) throws Exception {
         Utils.validateMindName(mindName);
-        AtomicBoolean isDatasourceAdded = new AtomicBoolean(false);
         String postBody = Utils.createRequestBodyForAddDs(newDatasourceName, checkConnection);
-        System.out.println(postBody);
-        Unirest.post(Constants.ADD_DATASOURCE_MIND_ENDPOINT)
-                .routeParam(Constants.PROJECT_NAME_ROUTE_PARAM, Constants.MINDS_PROJECT)
-                .routeParam(Constants.MIND_NAME_ROUTE_PARAM, mindName)
-                .body(postBody)
-                .asString()
-                .ifFailure(stringHttpResponse -> {
-                    System.out.println(stringHttpResponse.getRequestSummary().getUrl());
-                    if(!stringHttpResponse.isSuccess()){
-                        logger.error(Constants.FAILED_REQUEST_ERROR_LOG, stringHttpResponse.getStatus(), stringHttpResponse.getBody());
-                    }
-                })
-                .ifSuccess(stringHttpResponse -> {
-                    logger.debug("Response code - {}. New {} datasource added", stringHttpResponse.getStatus(), newDatasourceName);
-                    isDatasourceAdded.set(true);
-                });
-        return isDatasourceAdded.get();
+
+        String endPoint = String.format(Constants.ADD_DATASOURCE_MIND_ENDPOINT, Constants.MINDS_PROJECT, mindName);
+
+        HttpResponse<String> httpResponse = RestUtils.sendPostRequest(endPoint, postBody);
+
+        if(!httpResponse.isSuccess()){
+            log.error(Constants.FAILED_REQUEST_ERROR_LOG, httpResponse.getStatus(), httpResponse.getBody());
+            return false;
+        }
+
+        log.debug("Response code - {}. New {} datasource added", httpResponse.getStatus(), newDatasourceName);
+        return true;
     }
 
     /**

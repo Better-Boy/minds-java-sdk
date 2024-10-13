@@ -64,7 +64,7 @@ public class MindsService {
      * @return {@code true} if the mind was deleted successfully, {@code false} otherwise
      * @throws Exception if validation fails or an error occurs during the request
      */
-    public static boolean delete(String mindName) throws Exception {
+    public static boolean drop(String mindName) throws Exception {
         Utils.validateMindName(mindName);
         String endPoint = String.format(Constants.DELETE_MIND_ENDPOINT, Constants.MINDS_PROJECT, mindName);
         HttpResponse<String> httpResponse = RestClient.sendDeleteRequest(endPoint);

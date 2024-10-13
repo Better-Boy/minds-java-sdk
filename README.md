@@ -2,12 +2,8 @@
 
 ### Installation
 
-Requires atleast java 11
+Requires atleast java 11. Yet to be published to maven central.
 
-#### TODO
-
-- Chat completion - OpenAI has no official java sdk
-- CI/CD using github actions
 
 ### Getting Started
 
@@ -100,7 +96,7 @@ To delete a mind, use the following command:
 
 ```java
 String mindName = "newMind";
-MindsService.delete(mindName);
+MindsService.drop(mindName);
 ```
 
 ### Managing Data Sources
@@ -128,6 +124,10 @@ To delete a data source, use the following command:
 
 ```java
 String dsName = "testds";
-DatasourcesService.delete(dsName);
+DatasourcesService.drop(dsName);
 ```
 
+#### TODO
+
+- Chat completion - OpenAI has no official java sdk
+- CI/CD using github actions

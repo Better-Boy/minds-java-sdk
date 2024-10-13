@@ -2,9 +2,9 @@ package com.mindsdb.utils;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import com.mindsdb.Constants;
-import com.mindsdb.Datasource;
-import com.mindsdb.Mind;
+import com.mindsdb.models.DatabaseConfig;
+import com.mindsdb.models.Datasource;
+import com.mindsdb.models.Mind;
 
 import java.util.List;
 
@@ -74,6 +74,14 @@ public class Utils {
         if(datasource.getEngine().isEmpty()) throw new Exception("datasource engine cannot be empty string");
         if(datasource.getConnection_data().isEmpty()) throw new Exception("datasource connection json object cannot be empty string");
     }
+
+    public static void validateDatabaseConfig(DatabaseConfig databaseConfig) throws Exception {
+        validateDatasourceName(databaseConfig.getName());
+        if(databaseConfig.getDescription().isEmpty()) throw new Exception("datasource description cannot be empty string");
+        if(databaseConfig.getEngine().isEmpty()) throw new Exception("datasource engine cannot be empty string");
+        if(databaseConfig.getConnection_data().isEmpty()) throw new Exception("datasource connection json object cannot be empty string");
+    }
+
 
     /**
      * Validates the name of a data source.

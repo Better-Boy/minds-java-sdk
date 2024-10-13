@@ -4,8 +4,6 @@
 
 Requires atleast java 11
 
-TODO - publish jar to maven central
-
 #### TODO
 
 - Chat completion - OpenAI has no official java sdk
@@ -21,11 +19,11 @@ To get started, you'll need to initialize the Client with your API key. If you'r
 String apiKey = "";
 
 // Default connection to Minds Cloud that uses 'https://mdb.ai' as the base URL
-MindsDb.init(apiKey);
+Client.init(apiKey);
 
 // If you have self-hosted Minds Cloud instance, use your custom base URL
 String baseUrl = "https://staging.mdb.ai";
-MindsDb.init(apiKey, baseUrl);
+Client.init(apiKey, baseUrl);
 ```
 
 
@@ -36,15 +34,14 @@ You can connect to various databases, such as PostgreSQL, by configuring your da
 ```java
 String credentialString = "{\"user\":\"demo_user\",\"password\":\"demo_password\",\"host\":\"samples.mindsdb.com\",\"port\":5432,\"database\":\"demo\",\"schema\":\"demo_data\"}";
 JsonObject connObject  = Constants.gson.fromJson(credentialString, JsonObject.class);
-String dsName = "testds";
+String dsName = "testds12";
 String engine = "postgres";
-Datasource datasource = Datasource.builder().description("Postgres database")
+DatabaseConfig databaseConfig = DatabaseConfig.builder().description("Postgres database")
         .name(dsName)
         .engine(engine)
         .tables(List.of("car_info", "jobs"))
         .connection_data(connObject).build();
-boolean isCreated = datasource.create();
-System.out.println(isCreated);
+Datasource datasource = DatasourcesService.create(databaseConfig);
 ```
 
 3. Creating a Mind
@@ -52,40 +49,30 @@ System.out.println(isCreated);
 You can create a `mind` and associate it with a data source.
 
 ```java
-
 // Create a mind with a data source
-String mindName = "test";
+String mindName = "test34";
 Mind mind = Mind.builder().name(mindName).datasources(List.of("testds")).build();
-boolean isCreated = mind.create();
-if(isCreated) System.out.println(mindName + " created");
+MindsService.create(mind);
 
 // Alternatively, add a datasource to a mind later
-String mindName = "test";
+String mindName = "test34";
 String newDsName = "testdsnew";
-boolean isAdded = Mind.addDatasource(mindName, newDsName, true);
-if(isAdded) System.out.println(newDsName + " added to " + mindName);
-```
+Mind mind = MindsService.get(mindName).get();
+mind.addDatasource(newDsName);
 
-You can also add a data source to an existing mind:
-
-```java
-String mindName = "testMind";
-String newDsName = "testdsnew";
-Mind mindObj = Mind.get(mindName).get();
-boolean isAdded = mindObj.addDatasource(newDsName);
-if(isAdded) System.out.println(newDsName + " added to " + mindName);
+// If datasource is not there, then create the datasource using DatasourcesService.create
 ```
 
 ### Managing Minds
 
-To update a mind, specify the new name and data sources. The provided data sources will replace the existing ones.
+To update a mind, create a new Mind object with the changes required. Then pass the new Mind object to the existing mind object that needs updation.
 
 ```java
-String mindName = "test1";
-Mind mindObj = Mind.get(mindName).get();
-mindObj.setModel_name("gpt-3.5");
-mindObj.setProvider("openai");
-mindObj.update();
+String mindName = "test34";
+String newMindName = "latestMind";
+Mind updatemind = Mind.builder().name(newMindName).build();
+Mind mind = MindsService.get(mindName).get();
+mind.update(updatemind);
 ```
 
 #### List Minds
@@ -93,7 +80,7 @@ mindObj.update();
 You can list all the minds you’ve created.
 
 ```java
-Optional<List<Mind>> optionalMinds = Mind.list();
+Optional<List<Mind>> optionalMinds = MindsService.list();
 optionalMinds.ifPresent(System.out::println);
 ```
 
@@ -102,8 +89,8 @@ optionalMinds.ifPresent(System.out::println);
 You can fetch details of a mind by its name.
 
 ```java
-String mindName = "t54";
-Optional<Mind> optionalMind = Mind.get(mindName);
+String mindName = "newMind";
+Optional<Mind> optionalMind = MindsService.get(mindName);
 optionalMind.ifPresent(System.out::println);
 ```
 
@@ -112,9 +99,8 @@ optionalMind.ifPresent(System.out::println);
 To delete a mind, use the following command:
 
 ```java
-String mindName = "newmind";
-boolean isDeleted = Mind.delete(mindName);
-if(isDeleted) System.out.println(mindName + " deleted");
+String mindName = "newMind";
+MindsService.delete(mindName);
 ```
 
 ### Managing Data Sources
@@ -122,7 +108,7 @@ if(isDeleted) System.out.println(mindName + " deleted");
 To view all data sources:
 
 ```java
-Optional<List<Datasource>> list = Datasource.list();
+Optional<List<Datasource>> list = DatasourcesService.list();
 list.ifPresent(System.out::println);
 ```
 
@@ -132,7 +118,7 @@ You can fetch details of a specific data source by its name.
 
 ```java
 String dsName = "testds";
-Optional<Datasource> optionalDatasource = Datasource.get(dsName);
+Optional<Datasource> optionalDatasource = DatasourcesService.get(dsName);
 optionalDatasource.ifPresent(System.out::println);
 ```
 
@@ -142,9 +128,6 @@ To delete a data source, use the following command:
 
 ```java
 String dsName = "testds";
-boolean isDeleted = Datasource.delete(dsName);
-if (isDeleted) System.out.println(dsName + " deleted");
+DatasourcesService.delete(dsName);
 ```
-
-> Note: The SDK currently does not support automatically removing a data source if it is no longer connected to any mind.
 

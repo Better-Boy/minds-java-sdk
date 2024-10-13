@@ -1,19 +1,12 @@
-package com.mindsdb;
+package com.mindsdb.client;
 
+import com.mindsdb.utils.Constants;
 import kong.unirest.core.Cache;
 import kong.unirest.core.Unirest;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * A utility class for initializing the MindsDB API configuration.
- * This class provides methods to set up the API key and base URL for
- * making requests to the MindsDB service.
- */
-public class MindsDb {
-
-    // Private constructor to prevent instantiation
-    private MindsDb() { }
+public class Client {
 
     /**
      * Initializes the MindsDB API with the provided API key and
@@ -26,13 +19,7 @@ public class MindsDb {
      * @param apiKey the API key for authenticating requests to the MindsDB service.
      */
     public static synchronized void init(String apiKey) {
-        Unirest.config()
-                .enableCookieManagement(true)
-                .defaultBaseUrl(Constants.MINDS_CLOUD_ENDPOINT)
-                .addDefaultHeader(Constants.AUTHORIZATION_HEADER,"Bearer " + apiKey)
-                .addDefaultHeader(Constants.CONTEXT_TYPE_HEADER, Constants.APPLICATION_JSON)
-                .cacheResponses(new Cache.Builder().maxAge(1, TimeUnit.MINUTES))
-                .retryAfter(true, 2);
+        configureUnirest(apiKey, Constants.MINDS_CLOUD_ENDPOINT);
     }
 
     /**
@@ -46,6 +33,10 @@ public class MindsDb {
      * @param baseUrl the custom base URL for the MindsDB API.
      */
     public static synchronized void init(String apiKey, String baseUrl) {
+        configureUnirest(apiKey, baseUrl);
+    }
+
+    private static synchronized void configureUnirest(String apiKey, String baseUrl){
         baseUrl = baseUrl.strip();
         if(!baseUrl.endsWith(Constants.MINDS_API_ENDPOINT)) baseUrl+=Constants.MINDS_API_ENDPOINT;
         Unirest.config()
@@ -60,4 +51,5 @@ public class MindsDb {
     public static void shutDownConnection(){
         Unirest.shutDown();
     }
+
 }

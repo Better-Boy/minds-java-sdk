@@ -1,4 +1,4 @@
-package com.mindsdb;
+package com.mindsdb.utils;
 
 import com.google.gson.Gson;
 

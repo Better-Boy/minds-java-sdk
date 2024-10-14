@@ -2,7 +2,21 @@
 
 ### Installation
 
-Requires atleast java 11. Yet to be published to maven central.
+Requires atleast java 11.
+
+Run the following commands:
+
+```bash
+git clone https://github.com/Better-Boy/minds-java-sdk`
+cd minds-java-sdk
+mvn clean install
+```
+
+Once this is done, that jar is created in the `target` folder. To add this as a dependency to maven project, use the following command:
+
+```bash
+mvn install:install-file -Dfile=minds-java-sdk-1.0.0.jar -DgroupId=org.mindsdb.sdk -DartifactId=minds-java-sdk -Dversion=1.0.0 -Dpackaging=jar
+```
 
 
 ### Getting Started
@@ -141,4 +155,4 @@ DatasourcesService.drop(dsName);
 #### TODO
 
 - Chat completion - OpenAI has no official java sdk and the 3rd part sdk is outdated.
-- CI/CD using github actions
+- CI/CD using github actions - need org account from mindsdb for [sonatype](https://central.sonatype.com/)

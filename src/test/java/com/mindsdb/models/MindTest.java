@@ -13,4 +13,9 @@ class MindTest {
     @Test
     void addDatasource() {
     }
+
+    // TBD
+    @Test
+    void dropDatasource() {
+    }
 }

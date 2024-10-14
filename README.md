@@ -92,11 +92,22 @@ optionalMind.ifPresent(System.out::println);
 
 #### Remove a Mind
 
-To delete a mind, use the following command:
+To delete a mind, use the following code:
 
 ```java
 String mindName = "newMind";
 MindsService.drop(mindName);
+```
+
+#### Remove a datasource from mind
+
+To delete a datasource from a mind, use the following code:
+
+```java
+String mindName = "newMind";
+String dsName = "oldDs";
+Mind mind = MindsService.get(mindName).get();
+mind.dropDatasource(dsName);
 ```
 
 ### Managing Data Sources
@@ -120,7 +131,7 @@ optionalDatasource.ifPresent(System.out::println);
 
 #### Remove a Data Source
 
-To delete a data source, use the following command:
+To delete a data source, use the following code:
 
 ```java
 String dsName = "testds";
@@ -129,5 +140,5 @@ DatasourcesService.drop(dsName);
 
 #### TODO
 
-- Chat completion - OpenAI has no official java sdk
+- Chat completion - OpenAI has no official java sdk and the 3rd part sdk is outdated.
 - CI/CD using github actions

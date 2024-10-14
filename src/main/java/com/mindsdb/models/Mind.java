@@ -61,7 +61,6 @@ public class Mind {
      * Updates an existing mind with the provided new mind data.
      *
      * @param newMind the new mind data to update
-     * @return {@code true} if the mind was updated successfully, {@code false} otherwise
      */
     public void update(Mind newMind) throws Exception {
         Utils.validateMindName(newMind.getName());
@@ -75,7 +74,6 @@ public class Mind {
      * Adds a new datasource to the specified mind.
      *
      * @param newDatasourceName the name of the new datasource
-     * @return {@code true} if the datasource was added successfully, {@code false} otherwise
      * @throws Exception if validation fails or an error occurs during the request
      */
     public void addDatasource(String newDatasourceName) throws Exception {
@@ -84,6 +82,19 @@ public class Mind {
         String endPoint = String.format(Constants.ADD_DATASOURCE_MIND_ENDPOINT, Constants.MINDS_PROJECT, name);
         HttpResponse<String> httpResponse = RestClient.sendPostRequest(endPoint, postBody);
         log.debug("Response code - {}. New {} datasource added", httpResponse.getStatus(), newDatasourceName);
+    }
+
+    /**
+     * Drops a datasource from the mind.
+     *
+     * @param datasourceName the name of the new datasource
+     * @throws Exception if validation fails or an error occurs during the request
+     */
+    public void dropDatasource(String datasourceName) throws Exception {
+        Utils.validateDatasourceName(datasourceName);
+        String endPoint = String.format(Constants.DEL_DATASOURCE_MIND_ENDPOINT, Constants.MINDS_PROJECT, name, datasourceName);
+        HttpResponse<String> httpResponse = RestClient.sendDeleteRequest(endPoint);
+        log.debug("Response code - {}. {} datasource deleted from {}", httpResponse.getStatus(), datasourceName, name);
     }
 
     @Override

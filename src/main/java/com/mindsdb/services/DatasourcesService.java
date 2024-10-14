@@ -18,7 +18,6 @@ public class DatasourcesService {
     /**
      * Creates a new data source.
      *
-     * @return true if the data source was created successfully; false otherwise.
      * @throws Exception if validation fails or an error occurs during the request.
      */
     public static Datasource create(DatabaseConfig databaseConfig) throws Exception {
@@ -72,10 +71,9 @@ public class DatasourcesService {
      * Deletes a data source by name.
      *
      * @param datasourceName the name of the data source to delete.
-     * @return true if the data source was deleted successfully; false otherwise.
      */
     public static void drop(String datasourceName) throws Exception {
-        String endPoint = String.format(Constants.GET_DATASOURCE_ENDPOINT, datasourceName);
+        String endPoint = String.format(Constants.DELETE_DATASOURCE_ENDPOINT, datasourceName);
         HttpResponse<String> httpResponse = RestClient.sendDeleteRequest(endPoint);
         log.debug("Response code - {}, {} deleted", httpResponse.getStatus(), datasourceName);
     }

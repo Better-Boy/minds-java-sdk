@@ -31,6 +31,7 @@ public class Constants {
     public static final String DELETE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/%s";
     public static final String UPDATE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/%s";
     public static final String ADD_DATASOURCE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/%s" + CREATE_DATASOURCE_ENDPOINT;
+    public static final String DEL_DATASOURCE_MIND_ENDPOINT = LIST_MIND_ENDPOINT + "/%s" + CREATE_DATASOURCE_ENDPOINT + "/%s";
 
     public static final String FAILED_REQUEST_ERROR_LOG = "Oh No! Status - {}. Response body - {}";
     public static final String FAILED_REQUEST_PARSE_LOG = "Parsing Exception: ";

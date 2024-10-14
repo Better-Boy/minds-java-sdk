@@ -7,7 +7,7 @@ Requires atleast java 11.
 Run the following commands:
 
 ```bash
-git clone https://github.com/Better-Boy/minds-java-sdk`
+git clone https://github.com/Better-Boy/minds-java-sdk
 cd minds-java-sdk
 mvn clean install
 ```
@@ -154,5 +154,5 @@ DatasourcesService.drop(dsName);
 
 #### TODO
 
-- Chat completion - OpenAI has no official java sdk and the 3rd part sdk is outdated.
-- CI/CD using github actions - need org account from mindsdb for [sonatype](https://central.sonatype.com/)
+- Chat completion - For chat completion in minds, no official Java sdk from openai is there. The community java sdk on openai community page (https://platform.openai.com/docs/libraries/community-libraries) is archived.
+- CI/CD using github actions - need org account from mindsdb for publishing this repo. Org account to be created at [sonatype](https://central.sonatype.com/).

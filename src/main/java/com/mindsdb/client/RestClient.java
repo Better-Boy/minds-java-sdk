@@ -17,20 +17,7 @@ import java.util.concurrent.TimeUnit;
  *
  * This class provides methods to simplify making HTTP requests, including
  * POST, PATCH, GET, and DELETE methods. Each method allows for the inclusion of
- * route parameters and a request body where applicable.
- *
- * Example usage:
- * <pre>
- *     Map<String, String> routeParams = new HashMap<>();
- *     routeParams.put("id", "123");
- *     String body = "{\"name\":\"John Doe\"}";
- *
- *     // Sending a POST request
- *     HttpResponse<String> response = RestUtils.sendPostRequest("http://example.com/api/users", routeParams, body);
- *
- *     // Sending a GET request
- *     HttpResponse<String> getResponse = RestUtils.sendGetRequest("http://example.com/api/users/{id}", routeParams);
- * </pre>
+ * a request body where applicable.
  *
  * <p>
  * Note: Ensure that the Unirest library is included in your project dependencies
@@ -107,6 +94,17 @@ public class RestClient {
         return httpResponse;
     }
 
+    /**
+     * Checks the HTTP response for errors and throws appropriate exceptions
+     * based on the status code.
+     *
+     * @param httpResponse the HTTP response to check
+     * @throws ObjectNotFoundException if the response status is 404 (Not Found)
+     * @throws ForbiddenException if the response status is 403 (Forbidden)
+     * @throws UnauthorizedException if the response status is 401 (Unauthorized)
+     * @throws UnknownError if the response status indicates an error (status code 400-599)
+     * @throws Exception if an unexpected error occurs while processing the response
+     */
     private void checkForFailedResponse(HttpResponse<String> httpResponse) throws Exception{
         switch (httpResponse.getStatus()){
             case 404: {
@@ -129,6 +127,14 @@ public class RestClient {
         }
     }
 
+    /**
+     * Configures the Unirest HTTP client with the provided API key and base URL.
+     * This method sets up cookie management, default headers, and response caching.
+     *
+     * @param apiKey the API key used for authorization
+     * @param baseUrl the base URL for API requests; it is stripped of leading/trailing spaces
+     *                and appended with the Minds API endpoint if not already present
+     */
     private synchronized void configureUnirest(String apiKey, String baseUrl){
         baseUrl = baseUrl.strip();
         if(!baseUrl.endsWith(Constants.MINDS_API_ENDPOINT)) baseUrl+=Constants.MINDS_API_ENDPOINT;

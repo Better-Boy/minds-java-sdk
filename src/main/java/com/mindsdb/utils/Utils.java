@@ -173,6 +173,14 @@ public class Utils {
         return Constants.gson.fromJson(dsListJsonString, typeToken.getType());
     }
 
+    /**
+     * Returns the base URL for OpenAI services based on the provided URL.
+     * The method modifies the host based on specific conditions and constructs a new URI.
+     *
+     * @param url the original URL to be modified
+     * @return the new base URL for OpenAI services as a String
+     * @throws URISyntaxException if the given URL is not a valid URI
+     */
     public static String getBaseUrlForOpenAI(String url) throws URISyntaxException {
         URI uri = new URI(url);
         String netloc = uri.getHost();
@@ -187,6 +195,18 @@ public class Utils {
         return newUri.toString();
     }
 
+    /**
+     * Creates a Mind object from the provided parameters.
+     * This method utilizes the Builder pattern to construct a Mind object based on the specified attributes.
+     *
+     * @param name          the name of the Mind
+     * @param datasources   a list of data sources associated with the Mind
+     * @param modelName     the name of the model to be used
+     * @param parameters    a JSON object containing additional parameters for the Mind
+     * @param provider      the provider to be used
+     * @param promptTemplate the template for the prompt
+     * @return a Mind object created from the provided parameters
+     */
     public static Mind createMindFromParams(String name, List<String> datasources, String modelName, JsonObject parameters, String provider, String promptTemplate){
         Mind.MindBuilder mindBuilder = Mind.builder().name(name);
         if(!(datasources == null || datasources.isEmpty())) mindBuilder.datasources(datasources);

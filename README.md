@@ -12,7 +12,7 @@ cd minds-java-sdk
 mvn clean install
 ```
 
-Once this is done, that jar is created in the `target` folder. To add this as a dependency to maven project, use the following command:
+Once this is done, the jar is created in the `target` folder. To add this as a dependency to maven project, use the following command:
 
 ```bash
 mvn install:install-file -Dfile=minds-java-sdk-1.0.0.jar -DgroupId=org.mindsdb.sdk -DartifactId=minds-java-sdk -Dversion=1.0.0 -Dpackaging=jar

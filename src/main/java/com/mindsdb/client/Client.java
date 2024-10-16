@@ -1,55 +1,30 @@
 package com.mindsdb.client;
 
-import com.mindsdb.utils.Constants;
-import kong.unirest.core.Cache;
-import kong.unirest.core.Unirest;
+import com.mindsdb.services.DatasourcesService;
+import com.mindsdb.services.MindsService;
+import lombok.Getter;
 
-import java.util.concurrent.TimeUnit;
-
+@Getter
 public class Client {
 
-    /**
-     * Initializes the MindsDB API with the provided API key and
-     * the default base URL.
-     *
-     * This method configures the Unirest HTTP client to manage cookies,
-     * set the default base URL, and add necessary headers for authorization
-     * and content type. It also configures response caching and retry behavior.
-     *
-     * @param apiKey the API key for authenticating requests to the MindsDB service.
-     */
-    public static synchronized void init(String apiKey) {
-        configureUnirest(apiKey, Constants.MINDS_CLOUD_ENDPOINT);
+    private final RestClient restClient;
+    public final MindsService mindsService;
+    public final DatasourcesService datasourcesService;
+
+    public Client(String apiKey) {
+        this.restClient = new RestClient(apiKey);
+        this.mindsService = new MindsService(restClient);
+        this.datasourcesService = new DatasourcesService(restClient);
     }
 
-    /**
-     * Initializes the MindsDB API with the provided API key and a custom base URL.
-     *
-     * This method configures the Unirest HTTP client similarly to the other
-     * init method, but allows for a custom base URL. It ensures that the
-     * base URL ends with the Minds API endpoint.
-     *
-     * @param apiKey  the API key for authenticating requests to the MindsDB service.
-     * @param baseUrl the custom base URL for the MindsDB API.
-     */
-    public static synchronized void init(String apiKey, String baseUrl) {
-        configureUnirest(apiKey, baseUrl);
+    public Client(String apiKey, String baseUrl) {
+        this.restClient = new RestClient(apiKey, baseUrl);
+        this.mindsService = new MindsService(restClient);
+        this.datasourcesService = new DatasourcesService(restClient);
     }
 
-    private static synchronized void configureUnirest(String apiKey, String baseUrl){
-        baseUrl = baseUrl.strip();
-        if(!baseUrl.endsWith(Constants.MINDS_API_ENDPOINT)) baseUrl+=Constants.MINDS_API_ENDPOINT;
-        Unirest.config()
-                .enableCookieManagement(true)
-                .defaultBaseUrl(baseUrl)
-                .addDefaultHeader(Constants.AUTHORIZATION_HEADER,"Bearer " + apiKey)
-                .addDefaultHeader(Constants.CONTEXT_TYPE_HEADER, Constants.APPLICATION_JSON)
-                .cacheResponses(new Cache.Builder().maxAge(1, TimeUnit.MINUTES))
-                .retryAfter(true, 2);
-    }
-
-    public static void shutDownConnection(){
-        Unirest.shutDown();
+    public void shutDownConnection(){
+        restClient.shutDown();
     }
 
 }

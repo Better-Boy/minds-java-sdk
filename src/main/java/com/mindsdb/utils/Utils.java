@@ -6,6 +6,8 @@ import com.mindsdb.models.DatabaseConfig;
 import com.mindsdb.models.Datasource;
 import com.mindsdb.models.Mind;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 /**
@@ -171,4 +173,27 @@ public class Utils {
         return Constants.gson.fromJson(dsListJsonString, typeToken.getType());
     }
 
+    public static String getBaseUrlForOpenAI(String url) throws URISyntaxException {
+        URI uri = new URI(url);
+        String netloc = uri.getHost();
+        String llmHost;
+
+        if ("mdb.ai".equals(netloc)) {
+            llmHost = "llm.mdb.ai";
+        } else {
+            llmHost = "ai." + netloc;
+        }
+        URI newUri = new URI(uri.getScheme(), llmHost, "", uri.getQuery(), uri.getFragment());
+        return newUri.toString();
+    }
+
+    public static Mind createMindFromParams(String name, List<String> datasources, String modelName, JsonObject parameters, String provider, String promptTemplate){
+        Mind.MindBuilder mindBuilder = Mind.builder().name(name);
+        if(!(datasources == null || datasources.isEmpty())) mindBuilder.datasources(datasources);
+        if(!(modelName == null || modelName.isEmpty())) mindBuilder.model_name(modelName);
+        if(!(parameters == null || parameters.isEmpty())) mindBuilder.parameters(parameters);
+        if(!(provider == null || provider.isEmpty())) mindBuilder.provider(provider);
+        if(!(promptTemplate == null || promptTemplate.isEmpty())) mindBuilder.prompt_template(promptTemplate);
+        return mindBuilder.build();
+    }
 }

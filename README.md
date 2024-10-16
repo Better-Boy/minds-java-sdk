@@ -2,7 +2,7 @@
 
 ### Installation
 
-Requires atleast java 11.
+Requires atleast java 17.
 
 Run the following commands:
 
@@ -29,11 +29,11 @@ To get started, you'll need to initialize the Client with your API key. If you'r
 String apiKey = "";
 
 // Default connection to Minds Cloud that uses 'https://mdb.ai' as the base URL
-Client.init(apiKey);
+Client client = new Client(apiKey);
 
 // If you have self-hosted Minds Cloud instance, use your custom base URL
 String baseUrl = "https://staging.mdb.ai";
-Client.init(apiKey, baseUrl);
+Client client = new Client(apiKey, baseUrl);
 ```
 
 
@@ -51,7 +51,7 @@ DatabaseConfig databaseConfig = DatabaseConfig.builder().description("Postgres d
         .engine(engine)
         .tables(List.of("car_info", "jobs"))
         .connection_data(connObject).build();
-Datasource datasource = DatasourcesService.create(databaseConfig);
+Datasource datasource = client.datasourcesService.create(databaseConfig);
 ```
 
 3. Creating a Mind
@@ -60,14 +60,15 @@ You can create a `mind` and associate it with a data source.
 
 ```java
 // Create a mind with a data source
-String mindName = "test34";
-Mind mind = Mind.builder().name(mindName).datasources(List.of("testds")).build();
-MindsService.create(mind);
+String mindName = "testMind";
+List<String> ds = List.of("testds");
+Mind mind = client.mindsService.create(mindName, ds);
+System.out.println(mind);
 
 // Alternatively, add a datasource to a mind later
-String mindName = "test34";
+String mindName = "testMind";
 String newDsName = "testdsnew";
-Mind mind = MindsService.get(mindName).get();
+Mind mind = client.mindsService.get(mindName).get();
 mind.addDatasource(newDsName);
 
 // If datasource is not there, then create the datasource using DatasourcesService.create
@@ -80,17 +81,19 @@ To update a mind, create a new Mind object with the changes required. Then pass 
 ```java
 String mindName = "test34";
 String newMindName = "latestMind";
-Mind updatemind = Mind.builder().name(newMindName).build();
-Mind mind = MindsService.get(mindName).get();
-mind.update(updatemind);
+Mind mind = client.mindsService.get(mindName).get();
+mind.update(newMindName, null, null, null, null, null);
 ```
+
+`null` above is for other properties like - datasources, provider etc.. Refer the javadoc for the method signature.
 
 #### List Minds
 
 You can list all the minds you’ve created.
 
 ```java
-Optional<List<Mind>> optionalMinds = MindsService.list();
+Client client = new Client(apiKey, baseUrl);
+Optional<List<Mind>> optionalMinds = client.mindsService.list();
 optionalMinds.ifPresent(System.out::println);
 ```
 
@@ -100,7 +103,7 @@ You can fetch details of a mind by its name.
 
 ```java
 String mindName = "newMind";
-Optional<Mind> optionalMind = MindsService.get(mindName);
+Optional<Mind> optionalMind = client.mindsService.get(mindName);
 optionalMind.ifPresent(System.out::println);
 ```
 
@@ -110,7 +113,7 @@ To delete a mind, use the following code:
 
 ```java
 String mindName = "newMind";
-MindsService.drop(mindName);
+client.mindsService.drop(mindName);
 ```
 
 #### Remove a datasource from mind
@@ -129,7 +132,7 @@ mind.dropDatasource(dsName);
 To view all data sources:
 
 ```java
-Optional<List<Datasource>> list = DatasourcesService.list();
+Optional<List<Datasource>> list = client.datasourcesService.list();
 list.ifPresent(System.out::println);
 ```
 
@@ -139,7 +142,7 @@ You can fetch details of a specific data source by its name.
 
 ```java
 String dsName = "testds";
-Optional<Datasource> optionalDatasource = DatasourcesService.get(dsName);
+Optional<Datasource> optionalDatasource = client.datasourcesService.get(dsName);
 optionalDatasource.ifPresent(System.out::println);
 ```
 
@@ -149,10 +152,9 @@ To delete a data source, use the following code:
 
 ```java
 String dsName = "testds";
-DatasourcesService.drop(dsName);
+client.datasourcesService.drop(dsName);
 ```
 
 #### TODO
 
-- Chat completion - OpenAI has no official java sdk and the 3rd part sdk is outdated.
 - CI/CD using github actions - need org account from mindsdb for [sonatype](https://central.sonatype.com/)

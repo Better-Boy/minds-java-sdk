@@ -1,5 +1,6 @@
 package com.mindsdb.services;
 
+import com.google.gson.JsonObject;
 import com.mindsdb.models.Mind;
 import com.mindsdb.utils.Constants;
 import com.mindsdb.client.RestClient;
@@ -13,62 +14,57 @@ import java.util.Optional;
 @Slf4j
 public class MindsService {
 
-    /**
-     * Creates a new mind using the provided {@code Mind} object.
-     *
-     * @param mind the mind to be created
-     * @return an {@code Optional<Mind>} containing the created mind if successful, or empty if the creation failed
-     * @throws Exception if validation fails or an error occurs during the request
-     */
-    public static Mind create(Mind mind) throws Exception {
-        Utils.validateMind(mind);
-        String postBody = Constants.gson.toJson(mind);
-        String endPoint = String.format(Constants.CREATE_MIND_ENDPOINT, Constants.MINDS_PROJECT);
-        HttpResponse<String> httpResponse = RestClient.sendPostRequest(endPoint, postBody);
-        log.debug("Response code - {}, {} created", httpResponse.getStatus(), mind.getName());
-        return mind;
+    private final RestClient restClient;
+
+    public MindsService(RestClient restClient) {
+        this.restClient = restClient;
     }
 
+    public Mind create(String name) throws Exception {
+        return create(name, null, null, null, null, null);
+    }
 
-    /**
-     * Retrieves a list of all minds associated with the 'mindsdb' project.
-     *
-     * @return an {@code Optional<List<Mind>>} containing the list of minds if successful, or empty if the request failed
-     */
-    public static Optional<List<Mind>> list() throws Exception {
+    public Mind create(String name, List<String> datasources) throws Exception {
+        return create(name, datasources, null, null, null, null);
+    }
+
+    private Mind create(String name, List<String> datasources, String modelName, JsonObject parameters, String provider, String promptTemplate) throws Exception {
+        Mind toBeCreatedMind = Utils.createMindFromParams(name, datasources, modelName, parameters, provider, promptTemplate);
+        return create(toBeCreatedMind);
+    }
+
+    private Mind create(Mind mind) throws Exception {
+        Utils.validateMind(mind);
+        if(mind.getPrompt_template() != null) mind.getParameters().addProperty(Constants.PROMPT_TEMPLATE, mind.getPrompt_template());
+        if(!mind.getParameters().has(Constants.PROMPT_TEMPLATE)) mind.getParameters().addProperty(Constants.PROMPT_TEMPLATE, Constants.DEFAULT_PROMPT_TEMPLATE);
+        String postBody = Constants.gson.toJson(mind);
+        String endPoint = String.format(Constants.CREATE_MIND_ENDPOINT, Constants.MINDS_PROJECT);
+        HttpResponse<String> httpResponse = restClient.sendPostRequest(endPoint, postBody);
+        log.debug("Response code - {}, {} created", httpResponse.getStatus(), mind.getName());
+        return get(mind.getName()).get();
+    }
+
+    public Optional<List<Mind>> list() throws Exception {
         String endPoint = String.format(Constants.LIST_MIND_ENDPOINT, Constants.MINDS_PROJECT);
-        HttpResponse<String> listHttpResponse = RestClient.sendGetRequest(endPoint);
+        HttpResponse<String> listHttpResponse = restClient.sendGetRequest(endPoint);
         List<Mind> mindList = Utils.parseStringToMindList(listHttpResponse.getBody());
+        mindList.forEach(mind -> mind.setRestClient(restClient));
         return Optional.of(mindList);
     }
 
-    /**
-     * Retrieves a specific mind by its name.
-     *
-     * @param mindName the name of the mind to retrieve
-     * @return an {@code Optional<Mind>} containing the retrieved mind if successful, or empty if not found
-     * @throws Exception if validation fails or an error occurs during the request
-     */
-    public static Optional<Mind> get(String mindName) throws Exception {
+    public Optional<Mind> get(String mindName) throws Exception {
         Utils.validateMindName(mindName);
         String endPoint = String.format(Constants.GET_MIND_ENDPOINT, Constants.MINDS_PROJECT, mindName);
-        HttpResponse<String> httpResponse = RestClient.sendGetRequest(endPoint);
+        HttpResponse<String> httpResponse = restClient.sendGetRequest(endPoint);
         Mind resMind = Utils.parseStringToMind(httpResponse.getBody());
+        resMind.setRestClient(restClient);
         return Optional.of(resMind);
     }
 
-    /**
-     * Deletes a specific mind by its name.
-     *
-     * @param mindName the name of the mind to delete
-     * @return {@code true} if the mind was deleted successfully, {@code false} otherwise
-     * @throws Exception if validation fails or an error occurs during the request
-     */
-    public static boolean drop(String mindName) throws Exception {
+    public void drop(String mindName) throws Exception {
         Utils.validateMindName(mindName);
         String endPoint = String.format(Constants.DELETE_MIND_ENDPOINT, Constants.MINDS_PROJECT, mindName);
-        HttpResponse<String> httpResponse = RestClient.sendDeleteRequest(endPoint);
+        HttpResponse<String> httpResponse = restClient.sendDeleteRequest(endPoint);
         log.debug("Response code - {}, {} deleted", httpResponse.getStatus(), mindName);
-        return true;
     }
 }

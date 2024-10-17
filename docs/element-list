@@ -1,0 +1,5 @@
+com.mindsdb.client
+com.mindsdb.exception
+com.mindsdb.models
+com.mindsdb.services
+com.mindsdb.utils

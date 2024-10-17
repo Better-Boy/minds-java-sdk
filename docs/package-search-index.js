@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.mindsdb.client"},{"l":"com.mindsdb.exception"},{"l":"com.mindsdb.models"},{"l":"com.mindsdb.services"},{"l":"com.mindsdb.utils"}];updateSearchResults();

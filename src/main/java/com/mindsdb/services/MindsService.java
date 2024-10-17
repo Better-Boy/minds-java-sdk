@@ -59,7 +59,7 @@ public class MindsService {
      * @return the created Mind object
      * @throws Exception if an error occurs during the creation process
      */
-    private Mind create(String name, List<String> datasources, String modelName, JsonObject parameters, String provider, String promptTemplate) throws Exception {
+    public Mind create(String name, List<String> datasources, String modelName, JsonObject parameters, String provider, String promptTemplate) throws Exception {
         Mind toBeCreatedMind = Utils.createMindFromParams(name, datasources, modelName, parameters, provider, promptTemplate);
         return create(toBeCreatedMind);
     }
@@ -74,7 +74,7 @@ public class MindsService {
     private Mind create(Mind mind) throws Exception {
         Utils.validateMind(mind);
         if(mind.getPrompt_template() != null) mind.getParameters().addProperty(Constants.PROMPT_TEMPLATE, mind.getPrompt_template());
-        if(!mind.getParameters().has(Constants.PROMPT_TEMPLATE)) mind.getParameters().addProperty(Constants.PROMPT_TEMPLATE, Constants.DEFAULT_PROMPT_TEMPLATE);
+        if(mind.getParameters() != null && !mind.getParameters().has(Constants.PROMPT_TEMPLATE)) mind.getParameters().addProperty(Constants.PROMPT_TEMPLATE, Constants.DEFAULT_PROMPT_TEMPLATE);
         String postBody = Constants.gson.toJson(mind);
         String endPoint = String.format(Constants.CREATE_MIND_ENDPOINT, Constants.MINDS_PROJECT);
         HttpResponse<String> httpResponse = restClient.sendPostRequest(endPoint, postBody);

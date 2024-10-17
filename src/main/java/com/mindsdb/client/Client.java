@@ -13,7 +13,6 @@ import lombok.Getter;
  * base URL.
  * </p>
  */
-@Getter
 public class Client {
 
     private final RestClient restClient;

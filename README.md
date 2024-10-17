@@ -74,6 +74,20 @@ mind.addDatasource(newDsName);
 // If datasource is not there, then create the datasource using DatasourcesService.create
 ```
 
+4. Chatting with a mind
+
+```java
+String mindName = "testMind";
+String message = "How are you today?!"
+Mind mind = client.mindsService.get(mindName).get();
+String response = mind.completion(message);
+
+// Stream the responses
+Mind mind = client.mindsService.get(mindName).get();
+Stream<ChatCompletionChunk> streamResponse = mind.streamCompletion(message);
+streamResponse.forEach(System.out::println);
+```
+
 ### Managing Minds
 
 To update a mind, create a new Mind object with the changes required. Then pass the new Mind object to the existing mind object that needs updation.

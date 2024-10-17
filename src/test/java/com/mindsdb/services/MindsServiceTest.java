@@ -3,6 +3,7 @@ package com.mindsdb.services;
 import com.mindsdb.client.Client;
 import com.mindsdb.models.Mind;
 import com.mindsdb.utils.Constants;
+import io.github.stefanbratanov.jvm.openai.ChatCompletionChunk;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 class MindsServiceTest {
 
@@ -24,7 +26,6 @@ class MindsServiceTest {
 
     private static Dispatcher createDispatcher(){
         return new Dispatcher() {
-
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
                 assert request.getPath() != null;
@@ -37,10 +38,10 @@ class MindsServiceTest {
                 String dsName = "testds";
                 MockResponse mockResponse = new MockResponse();
                 mockResponse.setResponseCode(200);
-                if(request.getPath().equals(listMindUrl)) mockResponse.setBody(listMindResponse().toString());
-                else if(request.getPath().equals(getMindUrl)) mockResponse.setBody(getMindResponse().toString());
-                else if(request.getPath().equals(createMindUrl)) mockResponse.setBody(createMindResponse().toString());
-                else if(request.getPath().equals(dropMindUrl)) return mockResponse;
+                if (request.getPath().equals(listMindUrl)) mockResponse.setBody(listMindResponse().toString());
+                else if (request.getPath().equals(getMindUrl)) mockResponse.setBody(getMindResponse().toString());
+                else if (request.getPath().equals(createMindUrl)) mockResponse.setBody(createMindResponse().toString());
+                else if (request.getPath().equals(dropMindUrl)) return mockResponse;
                 else mockResponse.setResponseCode(404);
                 return mockResponse;
             }
@@ -86,10 +87,9 @@ class MindsServiceTest {
     @Test
     void get() throws Exception {
         String mindName = "test";
-        Optional<Mind> actualList = client.mindsService.get(mindName);
-        assert actualList.isPresent();
-        assert actualList.get().equals(getMindResponse());
-
+        Optional<Mind> actualMind = client.mindsService.get(mindName);
+        assert actualMind.isPresent();
+        assert actualMind.get().equals(getMindResponse());
     }
 
     @Test

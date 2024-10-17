@@ -18,6 +18,10 @@ Once this is done, the jar is created in the `target` folder. To add this as a d
 mvn install:install-file -Dfile=minds-java-sdk-1.0.0.jar -DgroupId=org.mindsdb.sdk -DartifactId=minds-java-sdk -Dversion=1.0.0 -Dpackaging=jar
 ```
 
+### Java docs
+
+Refer the java docs at https://better-boy.github.io/minds-java-sdk/.
+
 
 ### Getting Started
 

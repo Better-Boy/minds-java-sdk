@@ -3,20 +3,15 @@ package com.mindsdb.services;
 import com.mindsdb.client.Client;
 import com.mindsdb.models.Mind;
 import com.mindsdb.utils.Constants;
-import io.github.stefanbratanov.jvm.openai.ChatCompletionChunk;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 class MindsServiceTest {
 
@@ -35,7 +30,6 @@ class MindsServiceTest {
                 String getMindUrl = api + String.format(Constants.GET_MIND_ENDPOINT, Constants.MINDS_PROJECT, mindName);
                 String dropMindUrl = api + String.format(Constants.DELETE_MIND_ENDPOINT, Constants.MINDS_PROJECT, mindName);
                 String createMindUrl = api + String.format(Constants.CREATE_MIND_ENDPOINT, Constants.MINDS_PROJECT);
-                String dsName = "testds";
                 MockResponse mockResponse = new MockResponse();
                 mockResponse.setResponseCode(200);
                 if (request.getPath().equals(listMindUrl)) mockResponse.setBody(listMindResponse().toString());
@@ -60,8 +54,8 @@ class MindsServiceTest {
         return Mind.builder().name("test").datasources(List.of("testds")).build();
     }
 
-    @BeforeAll
-    static void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         server = new MockWebServer();
         server.setDispatcher(createDispatcher());
         server.start(8080);
@@ -101,5 +95,6 @@ class MindsServiceTest {
     @AfterEach
     void tearDown() throws IOException {
         server.shutdown();
+        client.shutDownConnection();
     }
 }

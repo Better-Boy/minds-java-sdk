@@ -8,6 +8,7 @@ class MindTest {
 
     @Test
     void update() {
+        
     }
 
     @Test
@@ -20,9 +21,5 @@ class MindTest {
 
     @Test
     void completion() {
-    }
-
-    @Test
-    void streamCompletion() {
     }
 }

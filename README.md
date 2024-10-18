@@ -4,6 +4,30 @@
 
 Requires atleast java 17.
 
+#### Maven Central
+
+Maven:
+
+Add the following dependency to your `pom.xml`.
+
+```xml
+<dependency>
+    <groupId>io.github.better-boy</groupId>
+    <artifactId>minds-java-sdk</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+Gradle:
+
+Add the following dependency to your `build.gradle`.
+
+```
+implementation group: 'io.github.better-boy', name: 'minds-java-sdk', version: '1.0.0'
+```
+
+#### Manual Installation
+
 Run the following commands:
 
 ```bash
@@ -173,6 +197,4 @@ String dsName = "testds";
 client.datasourcesService.drop(dsName);
 ```
 
-#### TODO
-
-- CI/CD using github actions - need org account from mindsdb for [sonatype](https://central.sonatype.com/)
+Note: Thanks to [StefanBratanov](https://github.com/StefanBratanov) for the unofficial openai java client sdk

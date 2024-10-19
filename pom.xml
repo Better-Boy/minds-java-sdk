@@ -114,7 +114,6 @@
                 </executions>
                 <configuration>
                     <source>17</source>
-<!--                    <target>17</target>-->
                 </configuration>
             </plugin>
             <plugin>
@@ -141,6 +140,7 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
             <plugin>
